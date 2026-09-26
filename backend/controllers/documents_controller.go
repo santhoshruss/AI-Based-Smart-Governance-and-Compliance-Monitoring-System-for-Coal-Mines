@@ -83,17 +83,17 @@ func (dc *DocumentsController) ListDocuments(c *gin.Context) {
 	query := `
 		SELECT d.id, d.mine_id, COALESCE(m.mine_name, ''), COALESCE(d.mine_code, COALESCE(m.mine_code, '')),
 		       d.contractor_id, COALESCE(ct.company_name, ''),
-		       COALESCE(d.document_type, 'Statutory Certificate'), d.file_path, 
+		       COALESCE(d.document_type, 'Statutory Certificate'), COALESCE(d.file_path, ''), 
 		       COALESCE(d.certificate_number, ''), d.issue_date, d.expiry_date, COALESCE(d.ocr_raw_text, ''),
 		       COALESCE(d.inspector_name, ''), d.inspection_date, COALESCE(d.compliance_status, 'COMPLIANT'),
 		       COALESCE(d.violation_details, ''), COALESCE(d.risk_level, 'LOW'), COALESCE(d.corrective_action, ''),
 		       d.due_date, COALESCE(d.regulatory_reference, ''), d.ocr_data_json,
 		       COALESCE(d.workflow_status, 'PENDING_REVIEW'),
-		       d.uploaded_by, u.full_name AS uploaded_by_name,
+		       COALESCE(d.uploaded_by, 1), COALESCE(u.full_name, 'System Administrator'),
 		       d.reviewed_by, COALESCE(ur.full_name, ''), d.reviewed_at,
 		       d.approved_by, COALESCE(ua.full_name, ''), d.approved_at,
 		       d.verified_by, COALESCE(uv.full_name, ''), d.verified_at,
-		       COALESCE(d.status, 'VALID'), d.created_at
+		       COALESCE(d.status, 'VALID'), COALESCE(d.created_at, CURRENT_TIMESTAMP)
 		FROM documents d
 		LEFT JOIN mines m ON m.id = d.mine_id
 		LEFT JOIN contractors ct ON ct.id = d.contractor_id
@@ -104,13 +104,17 @@ func (dc *DocumentsController) ListDocuments(c *gin.Context) {
 		WHERE 1=1`
 	args := []interface{}{}
 
-	if mineID := c.Query("mine_id"); mineID != "" {
-		query += " AND d.mine_id = ?"
-		args = append(args, mineID)
+	if mineIDStr := c.Query("mine_id"); mineIDStr != "" {
+		if mid, err := strconv.Atoi(mineIDStr); err == nil {
+			query += " AND d.mine_id = ?"
+			args = append(args, mid)
+		}
 	}
-	if contractorID := c.Query("contractor_id"); contractorID != "" {
-		query += " AND d.contractor_id = ?"
-		args = append(args, contractorID)
+	if contractorIDStr := c.Query("contractor_id"); contractorIDStr != "" {
+		if cid, err := strconv.Atoi(contractorIDStr); err == nil {
+			query += " AND d.contractor_id = ?"
+			args = append(args, cid)
+		}
 	}
 	if status := c.Query("status"); status != "" {
 		query += " AND d.status = ?"
@@ -139,9 +143,10 @@ func (dc *DocumentsController) ListDocuments(c *gin.Context) {
 		var d documentItem
 		var mineID, contractorID sql.NullInt64
 		var reviewedBy, approvedBy, verifiedBy sql.NullInt64
-		var reviewedAt, approvedAt, verifiedAt sql.NullTime
+		var reviewedAt, approvedAt, verifiedAt interface{}
 		var issueVal, expiryVal, inspectVal, dueVal interface{}
-		var ocrJSONVal sql.NullString
+		var ocrJSONVal interface{}
+		var createdVal interface{}
 
 		err := rows.Scan(
 			&d.ID, &mineID, &d.MineName, &d.MineCode,
@@ -156,7 +161,7 @@ func (dc *DocumentsController) ListDocuments(c *gin.Context) {
 			&reviewedBy, &d.ReviewedByName, &reviewedAt,
 			&approvedBy, &d.ApprovedByName, &approvedAt,
 			&verifiedBy, &d.VerifiedByName, &verifiedAt,
-			&d.Status, &d.CreatedAt,
+			&d.Status, &createdVal,
 		)
 		if err != nil {
 			utils.Fail(c, http.StatusInternalServerError, "Failed to parse document record", err.Error())
@@ -183,26 +188,64 @@ func (dc *DocumentsController) ListDocuments(c *gin.Context) {
 			vb := int(verifiedBy.Int64)
 			d.VerifiedBy = &vb
 		}
-		if reviewedAt.Valid {
-			t := reviewedAt.Time.Format("2006-01-02 15:04")
-			d.ReviewedAt = &t
+		if reviewedAt != nil {
+			t := utils.FormatDateFromDB(reviewedAt)
+			if t != "" {
+				d.ReviewedAt = &t
+			}
 		}
-		if approvedAt.Valid {
-			t := approvedAt.Time.Format("2006-01-02 15:04")
-			d.ApprovedAt = &t
+		if approvedAt != nil {
+			t := utils.FormatDateFromDB(approvedAt)
+			if t != "" {
+				d.ApprovedAt = &t
+			}
 		}
-		if verifiedAt.Valid {
-			t := verifiedAt.Time.Format("2006-01-02 15:04")
-			d.VerifiedAt = &t
+		if verifiedAt != nil {
+			t := utils.FormatDateFromDB(verifiedAt)
+			if t != "" {
+				d.VerifiedAt = &t
+			}
 		}
 		d.IssueDate = utils.FormatDateFromDB(issueVal)
 		d.ExpiryDate = utils.FormatDateFromDB(expiryVal)
 		d.InspectionDate = utils.FormatDateFromDB(inspectVal)
 		d.DueDate = utils.FormatDateFromDB(dueVal)
-		if ocrJSONVal.Valid && ocrJSONVal.String != "" {
-			var parsed interface{}
-			if err := json.Unmarshal([]byte(ocrJSONVal.String), &parsed); err == nil {
-				d.OCRDataJSON = parsed
+
+		if createdVal != nil {
+			switch cv := createdVal.(type) {
+			case time.Time:
+				d.CreatedAt = cv
+			case *time.Time:
+				if cv != nil {
+					d.CreatedAt = *cv
+				}
+			default:
+				if t, err := time.Parse(time.RFC3339, fmt.Sprintf("%v", cv)); err == nil {
+					d.CreatedAt = t
+				} else {
+					d.CreatedAt = time.Now()
+				}
+			}
+		} else {
+			d.CreatedAt = time.Now()
+		}
+
+		if ocrJSONVal != nil {
+			switch v := ocrJSONVal.(type) {
+			case []byte:
+				var parsed interface{}
+				if err := json.Unmarshal(v, &parsed); err == nil {
+					d.OCRDataJSON = parsed
+				}
+			case string:
+				if strings.TrimSpace(v) != "" {
+					var parsed interface{}
+					if err := json.Unmarshal([]byte(v), &parsed); err == nil {
+						d.OCRDataJSON = parsed
+					}
+				}
+			default:
+				d.OCRDataJSON = v
 			}
 		}
 
