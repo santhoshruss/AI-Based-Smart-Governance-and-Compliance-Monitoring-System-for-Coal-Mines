@@ -101,17 +101,17 @@ func (oc *OperationalController) LogOperationalData(c *gin.Context) {
 	userIDVal, _ := c.Get(middleware.CtxUserID)
 	userID := userIDVal.(int)
 
-	res, err := database.DB.Exec(`
+	var newID int64
+	err := database.DB.QueryRow(`
 		INSERT INTO operational_data (mine_id, record_date, production_tonnes, expected_production, equipment_health_pct, attendance_pct)
-		VALUES (?, ?, ?, ?, ?, ?)`,
-		req.MineID, req.RecordDate, req.ProductionTonnes, req.ExpectedProduction, req.EquipmentHealthPct, req.AttendancePct)
+		VALUES (?, ?, ?, ?, ?, ?)
+		RETURNING id`,
+		req.MineID, req.RecordDate, req.ProductionTonnes, req.ExpectedProduction, req.EquipmentHealthPct, req.AttendancePct).Scan(&newID)
 
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "Failed to record operational data", err.Error())
 		return
 	}
-
-	newID, _ := res.LastInsertId()
 
 	// Anomaly check: Production shortfall > 25% or Equipment Health < 75%
 	if req.ExpectedProduction > 0 && req.ProductionTonnes < (req.ExpectedProduction*0.75) {

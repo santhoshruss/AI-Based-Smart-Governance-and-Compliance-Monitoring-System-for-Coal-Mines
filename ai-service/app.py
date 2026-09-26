@@ -11,10 +11,16 @@ except ImportError:
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from flask import Flask, request, jsonify
+try:
+    from flask_cors import CORS
+except ImportError:
+    CORS = None
 from risk_engine.engine import calculate_mine_risk
 from anomaly_detection.detector import detect_anomalies
 
 app = Flask(__name__)
+if CORS:
+    CORS(app)
 
 @app.route("/health", methods=["GET"])
 def health():
@@ -183,5 +189,5 @@ def classify_severity():
     })
 
 if __name__ == "__main__":
-    # Runs on port 5000 in local dev
-    app.run(host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)

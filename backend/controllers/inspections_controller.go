@@ -270,16 +270,17 @@ func (ic *InspectionsController) CreateInspection(c *gin.Context) {
 	inspectionDate := now.Format("2006-01-02")
 	inspectionTime := now.Format("15:04:05")
 
-	res, err := tx.Exec(`
+	var inspectionID64 int64
+	err = tx.QueryRow(`
 		INSERT INTO inspections (mine_id, inspection_type, inspector_id, inspection_date, inspection_time, gps_latitude, gps_longitude, remarks, status)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		mineID, inspectionType, userID, inspectionDate, inspectionTime, gpsLat, gpsLng, remarks, status)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+		RETURNING id`,
+		mineID, inspectionType, userID, inspectionDate, inspectionTime, gpsLat, gpsLng, remarks, status).Scan(&inspectionID64)
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "Failed to create inspection record", err.Error())
 		return
 	}
 
-	inspectionID64, _ := res.LastInsertId()
 	inspectionID := int(inspectionID64)
 
 	// Save Checklist Items

@@ -83,7 +83,7 @@ func (ac *AnalyticsController) GetChartsData(c *gin.Context) {
 
 	// 4. Mine Risk Rankings
 	mineRankRows, err := database.DB.Query(`
-		SELECT m.mine_name, IFNULL(r.score, 0)
+		SELECT m.mine_name, COALESCE(r.score, 0)
 		FROM mines m
 		LEFT JOIN risk_scores r ON r.mine_id = m.id AND r.computed_at = (SELECT MAX(computed_at) FROM risk_scores WHERE mine_id = m.id)
 		ORDER BY r.score DESC, m.mine_name ASC
@@ -105,11 +105,11 @@ func (ac *AnalyticsController) GetChartsData(c *gin.Context) {
 
 	// 5. Compliance Trend (dynamic past 6 months of inspections)
 	complianceTrendRows, err := database.DB.Query(`
-		SELECT DATE_FORMAT(inspection_date, '%b %Y') as month_yr,
+		SELECT TO_CHAR(inspection_date, 'Mon YYYY') as month_yr,
 		       SUM(CASE WHEN status='APPROVED' THEN 1 ELSE 0 END) as approved_count,
 		       COUNT(*) as total_count
 		FROM inspections
-		GROUP BY month_yr
+		GROUP BY TO_CHAR(inspection_date, 'Mon YYYY')
 		ORDER BY MIN(inspection_date) ASC
 		LIMIT 6`)
 	type trendPoint struct {
@@ -134,9 +134,9 @@ func (ac *AnalyticsController) GetChartsData(c *gin.Context) {
 
 	// 6. Inspection Trend
 	inspectionTrendRows, err := database.DB.Query(`
-		SELECT DATE_FORMAT(inspection_date, '%b %Y') as month_yr, COUNT(*)
+		SELECT TO_CHAR(inspection_date, 'Mon YYYY') as month_yr, COUNT(*)
 		FROM inspections
-		GROUP BY month_yr
+		GROUP BY TO_CHAR(inspection_date, 'Mon YYYY')
 		ORDER BY MIN(inspection_date) ASC
 		LIMIT 6`)
 	inspectionsTrend := []labelCount{}
@@ -245,7 +245,7 @@ func (ac *AnalyticsController) HandleVoiceQuery(c *gin.Context) {
 
 	// Context Gathering: Fetch current mines and risk scores
 	mineRankRows, err := database.DB.Query(`
-		SELECT m.id, m.mine_name, m.mine_code, IFNULL(m.state, ''), IFNULL(m.mine_type, 'OPENCAST'), IFNULL(r.score, 0)
+		SELECT m.id, m.mine_name, m.mine_code, COALESCE(m.state, ''), COALESCE(m.mine_type, 'OPENCAST'), COALESCE(r.score, 0)
 		FROM mines m
 		LEFT JOIN risk_scores r ON r.mine_id = m.id AND r.computed_at = (SELECT MAX(computed_at) FROM risk_scores WHERE mine_id = m.id)
 		WHERE m.status = 'ACTIVE'
@@ -298,13 +298,13 @@ func (ac *AnalyticsController) HandleVoiceQuery(c *gin.Context) {
 	// Fetch worker metrics
 	var totalWorkers, presentToday int
 	_ = database.DB.QueryRow(`SELECT COUNT(*) FROM workers WHERE status = 'ACTIVE'`).Scan(&totalWorkers)
-	_ = database.DB.QueryRow(`SELECT COUNT(*) FROM attendance WHERE record_date = CURDATE() AND status = 'PRESENT'`).Scan(&presentToday)
+	_ = database.DB.QueryRow(`SELECT COUNT(*) FROM attendance WHERE record_date = CURRENT_DATE AND status = 'PRESENT'`).Scan(&presentToday)
 
 	// Fetch latest production total
 	var todayProd float64
-	_ = database.DB.QueryRow(`SELECT IFNULL(SUM(production_tonnes), 0) FROM operational_data WHERE record_date = CURDATE()`).Scan(&todayProd)
+	_ = database.DB.QueryRow(`SELECT COALESCE(SUM(production_tonnes), 0) FROM operational_data WHERE record_date = CURRENT_DATE`).Scan(&todayProd)
 	if todayProd == 0 {
-		_ = database.DB.QueryRow(`SELECT IFNULL(SUM(production_tonnes), 0) FROM operational_data WHERE record_date = (SELECT MAX(record_date) FROM operational_data)`).Scan(&todayProd)
+		_ = database.DB.QueryRow(`SELECT COALESCE(SUM(production_tonnes), 0) FROM operational_data WHERE record_date = (SELECT MAX(record_date) FROM operational_data)`).Scan(&todayProd)
 	}
 
 	// Fetch active anomalies and incidents
@@ -496,7 +496,7 @@ func (ac *AnalyticsController) RecalculateRiskForMines() error {
 		_ = database.DB.QueryRow(`
 			SELECT COUNT(*) FROM environmental_data 
 			WHERE mine_id = ? 
-			  AND record_date >= DATE_SUB(NOW(), INTERVAL 7 DAY) 
+			  AND record_date >= (CURRENT_DATE - INTERVAL '7 days') 
 			  AND (aqi > 150 OR water_quality_index < 65 OR dust_level > 200)`, mine.ID).Scan(&envAlerts)
 
 		// Recurring violation in same category (>= 3 violations in past 30 days)
@@ -506,9 +506,9 @@ func (ac *AnalyticsController) RecalculateRiskForMines() error {
 			SELECT cc.name, COUNT(*) as cnt 
 			FROM violations v 
 			JOIN compliance_categories cc ON cc.id = v.category_id 
-			WHERE v.mine_id = ? AND v.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) 
-			GROUP BY cc.id 
-			HAVING cnt >= 3 
+			WHERE v.mine_id = ? AND v.created_at >= (NOW() - INTERVAL '30 days') 
+			GROUP BY cc.name, cc.id 
+			HAVING COUNT(*) >= 3 
 			LIMIT 1`, mine.ID).Scan(&recurringCat, &recurringCount)
 
 		stats := map[string]interface{}{
@@ -650,7 +650,7 @@ func (ac *AnalyticsController) GetRecurringViolations(c *gin.Context) {
 		FROM violations v
 		JOIN mines m ON m.id = v.mine_id
 		JOIN compliance_categories cc ON cc.id = v.category_id
-		WHERE v.created_at >= DATE_SUB(NOW(), INTERVAL %d DAY)`, windowDays)
+		WHERE v.created_at >= (NOW() - INTERVAL '%d days')`, windowDays)
 
 	args := []interface{}{}
 	if mineID != "" {

@@ -118,19 +118,19 @@ func (cc *ComplianceController) CreateRule(c *gin.Context) {
 
 	userID, _ := c.Get(middleware.CtxUserID)
 
-	result, err := database.DB.Exec(`
+	var newID int64
+	err := database.DB.QueryRow(`
 		INSERT INTO compliance_rules (rule_code, title, description, category_id, applicable_mine_id,
 		                               frequency, severity, responsible_dept, due_period_days, status, created_by, updated_by)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		RETURNING id`,
 		req.RuleCode, req.Title, req.Description, req.CategoryID, req.ApplicableMine,
-		req.Frequency, req.Severity, req.ResponsibleDept, req.DuePeriodDays, req.Status, userID, userID)
+		req.Frequency, req.Severity, req.ResponsibleDept, req.DuePeriodDays, req.Status, userID, userID).Scan(&newID)
 
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "Failed to create rule (check that rule_code is unique)", err.Error())
 		return
 	}
-
-	newID, _ := result.LastInsertId()
 	utils.LogAudit(userID.(int), "COMPLIANCE_RULE_CREATED", "COMPLIANCE", strconv.FormatInt(newID, 10),
 		map[string]interface{}{"rule_code": req.RuleCode, "title": req.Title}, c.ClientIP())
 

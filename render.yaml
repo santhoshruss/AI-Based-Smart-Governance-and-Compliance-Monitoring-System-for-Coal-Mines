@@ -1,0 +1,48 @@
+services:
+  # -------------------------------------------------------------
+  # 1. GO BACKEND API SERVICE
+  # -------------------------------------------------------------
+  - type: web
+    name: coal-governance-backend
+    runtime: go
+    rootDir: backend
+    buildCommand: go build -o server .
+    startCommand: ./server
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+        # Example: postgres://username:password@ep-xyz.us-east-2.aws.neon.tech/neondb?sslmode=require
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRY_HOURS
+        value: 12
+      - key: AI_SERVICE_URL
+        fromService:
+          type: web
+          name: coal-governance-ai
+          property: host
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: UPLOAD_DIR
+        value: "./uploads"
+      - key: SLA_CRON_SCHEDULE
+        value: "@hourly"
+      - key: GEOFENCE_RADIUS_M
+        value: "500.0"
+
+  # -------------------------------------------------------------
+  # 2. PYTHON AI MICROSERVICE (Risk Engine + OCR + Voice + SLA)
+  # -------------------------------------------------------------
+  - type: web
+    name: coal-governance-ai
+    runtime: python
+    rootDir: ai-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false

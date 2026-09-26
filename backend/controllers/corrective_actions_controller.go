@@ -149,16 +149,16 @@ func (cac *CorrectiveActionsController) CreateCorrectiveAction(c *gin.Context) {
 	defer tx.Rollback()
 
 	// 1. Create corrective action record
-	res, err := tx.Exec(`
+	var newID int64
+	err = tx.QueryRow(`
 		INSERT INTO corrective_actions (violation_id, assigned_to, action_description, deadline, status)
-		VALUES (?, ?, ?, ?, 'ASSIGNED')`,
-		req.ViolationID, req.AssignedTo, req.ActionDescription, req.Deadline)
+		VALUES (?, ?, ?, ?, 'ASSIGNED')
+		RETURNING id`,
+		req.ViolationID, req.AssignedTo, req.ActionDescription, req.Deadline).Scan(&newID)
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "Failed to create corrective action", err.Error())
 		return
 	}
-
-	newID, _ := res.LastInsertId()
 
 	// 2. Update violation status to IN_PROGRESS and link assignee
 	_, err = tx.Exec(`

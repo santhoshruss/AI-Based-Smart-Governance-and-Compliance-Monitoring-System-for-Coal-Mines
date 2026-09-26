@@ -113,17 +113,24 @@ cp .env.example backend/.env
 # edit backend/.env — set DB_PASSWORD, JWT_SECRET, and GEMINI_API_KEY
 ```
 
-### 2. MySQL setup
+### 2. Database Setup (PostgreSQL / Neon DB or MySQL)
 
+#### Option A: PostgreSQL & Neon DB (Recommended for Cloud & Production)
+1. In your **Neon DB Console** (or local PostgreSQL 16), create a new database.
+2. Run the PostgreSQL schema and seed scripts:
+   ```bash
+   psql "postgres://user:password@ep-xyz.neon.tech/neondb?sslmode=require" -f database/schema_pg.sql
+   psql "postgres://user:password@ep-xyz.neon.tech/neondb?sslmode=require" -f database/seed_pg.sql
+   ```
+3. Copy your Neon connection string into `DATABASE_URL` in `backend/.env`.
+
+#### Option B: Local MySQL
 ```bash
 mysql -u root -p < database/schema.sql
 mysql -u root -p < database/seed.sql
 ```
 
-This creates the `coal_governance` database, all 25 tables, and seeds demo
-users, subsidiaries, mines, and compliance rules.
-
-### 3. Go backend setup
+### 3. Go Backend Setup
 
 ```bash
 cd backend
@@ -131,35 +138,46 @@ go mod tidy
 go run main.go
 ```
 
-The backend starts on `http://localhost:8080` by default (`APP_PORT` in
-`.env`). Verify with:
+The backend automatically connects to PostgreSQL / Neon DB (via `DATABASE_URL`) or local DB and listens on `http://localhost:8080` (or `PORT` on Render). Verify with:
 
 ```bash
 curl http://localhost:8080/api/health
 ```
 
-### 4. Frontend setup
+### 4. Frontend Setup & Vercel Deployment
 
-The frontend is static HTML/CSS/JS — no build step required. Serve it with
-any static file server, e.g.:
-
+#### Local Development:
+The frontend is static HTML/CSS/JS. Serve it with any static web server:
 ```bash
 cd frontend
 python -m http.server 8000
 ```
+Open `http://localhost:8000/login.html`.
 
-Then open `http://localhost:8000/login.html`. If your backend runs on a
-different host/port, edit `frontend/js/config.js` (`API_BASE_URL`).
+#### Vercel Cloud Deployment:
+1. Import this repository in **[Vercel](https://vercel.com/)**.
+2. Set **Root Directory** to `./` (or `frontend`).
+3. Deploy! Vercel automatically reads `vercel.json`.
+4. In `frontend/js/config.js`, update the fallback URL or set your Render backend domain, or use `APP_CONFIG.setApiUrl('https://your-backend.onrender.com/api')`.
 
-### 5. Python AI service
+### 5. Python AI Service & Render Deployment
 
+#### Local:
 ```bash
 cd ai-service
 pip install -r requirements.txt
 python app.py
 ```
 
-Starts the Flask AI service on `http://localhost:5000` handling risk scoring, anomaly detection, OCR processing, and Gemini AI endpoints.
+#### Render Cloud Deployment:
+1. Connect your repository to **[Render](https://render.com/)**.
+2. Render automatically detects `render.yaml` (Blueprint) and deploys:
+   - `coal-governance-backend` (Go Web Service)
+   - `coal-governance-ai` (Python Gunicorn Web Service)
+3. Set your environment variables in Render:
+   - `DATABASE_URL`: Your Neon DB connection string
+   - `GEMINI_API_KEY`: Your Google AI Studio API key
+   - `CORS_ORIGINS`: `*` or your Vercel domain (`https://*.vercel.app`)
 
 ### 6. Simulator
 
@@ -170,10 +188,10 @@ python mine_data_generator.py
 
 Generates live operational, environmental, and compliance telemetry for active mines, supporting configurable normal, high-risk, and emergency simulation modes.
 
-### 7. Docker Compose (alternative to steps 2–6)
+### 7. Docker Compose (Local Containerized Alternative)
 
 ```bash
-cp .env.example .env   # docker-compose reads DB_PASSWORD / JWT_SECRET / GEMINI_API_KEY from here
+cp .env.example .env   # docker-compose reads DATABASE_URL / JWT_SECRET / GEMINI_API_KEY
 docker compose up --build
 ```
 

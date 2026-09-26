@@ -92,17 +92,17 @@ func (ec *EnvironmentalController) LogEnvironmentalReading(c *gin.Context) {
 	userIDVal, _ := c.Get(middleware.CtxUserID)
 	userID := userIDVal.(int)
 
-	res, err := database.DB.Exec(`
+	var newID int64
+	err := database.DB.QueryRow(`
 		INSERT INTO environmental_data (mine_id, record_date, aqi, water_quality_index, noise_level_db, dust_level)
-		VALUES (?, ?, ?, ?, ?, ?)`,
-		req.MineID, req.RecordDate, req.AQI, req.WaterQualityIndex, req.NoiseLevelDB, req.DustLevel)
+		VALUES (?, ?, ?, ?, ?, ?)
+		RETURNING id`,
+		req.MineID, req.RecordDate, req.AQI, req.WaterQualityIndex, req.NoiseLevelDB, req.DustLevel).Scan(&newID)
 
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "Failed to record environmental data", err.Error())
 		return
 	}
-
-	newID, _ := res.LastInsertId()
 
 	// Check if parameters exceed statutory thresholds (e.g. AQI > 200 or Dust > 150)
 	if req.AQI > 200 || req.DustLevel > 150 || req.NoiseLevelDB > 85 {

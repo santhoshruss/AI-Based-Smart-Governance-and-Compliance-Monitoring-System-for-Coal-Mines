@@ -197,15 +197,16 @@ func (ic *IncidentsController) TriggerEmergency(c *gin.Context) {
 	}
 
 	// 1. Log a CRITICAL incident record.
-	res, err := database.DB.Exec(`
+	var incidentID int64
+	err := database.DB.QueryRow(`
 		INSERT INTO incidents (mine_id, incident_type, description, severity, reported_by, incident_date, status)
-		VALUES (?, ?, ?, 'CRITICAL', ?, ?, 'OPEN')`,
-		req.MineID, incidentType, description, userID, now)
+		VALUES (?, ?, ?, 'CRITICAL', ?, ?, 'OPEN')
+		RETURNING id`,
+		req.MineID, incidentType, description, userID, now).Scan(&incidentID)
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "Failed to log emergency incident", err.Error())
 		return
 	}
-	incidentID, _ := res.LastInsertId()
 
 	// 1b. Record sequential mesh telemetry hop logs
 	for _, h := range relayHops {
@@ -354,17 +355,17 @@ func (ic *IncidentsController) CreateIncident(c *gin.Context) {
 		incDate = time.Now()
 	}
 
-	res, err := database.DB.Exec(`
+	var newID int64
+	err := database.DB.QueryRow(`
 		INSERT INTO incidents (mine_id, incident_type, description, severity, reported_by, incident_date, status)
-		VALUES (?, ?, ?, ?, ?, ?, 'OPEN')`,
-		req.MineID, req.IncidentType, req.Description, req.Severity, userID, incDate)
+		VALUES (?, ?, ?, ?, ?, ?, 'OPEN')
+		RETURNING id`,
+		req.MineID, req.IncidentType, req.Description, req.Severity, userID, incDate).Scan(&newID)
 
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "Failed to create incident report", err.Error())
 		return
 	}
-
-	newID, _ := res.LastInsertId()
 	utils.LogAudit(userID, "INCIDENT_REPORTED", "INCIDENTS", fmt.Sprintf("%d", newID),
 		map[string]interface{}{"mine_id": req.MineID, "type": req.IncidentType, "severity": req.Severity}, c.ClientIP())
 

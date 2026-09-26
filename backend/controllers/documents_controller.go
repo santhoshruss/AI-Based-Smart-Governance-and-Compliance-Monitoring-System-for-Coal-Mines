@@ -74,8 +74,8 @@ func (dc *DocumentsController) ListDocuments(c *gin.Context) {
 	_, _ = database.DB.Exec(`
 		UPDATE documents 
 		SET status = CASE 
-			WHEN expiry_date < CURDATE() THEN 'EXPIRED'
-			WHEN expiry_date <= DATE_ADD(CURDATE(), INTERVAL 30 DAY) THEN 'EXPIRING_SOON'
+			WHEN expiry_date < CURRENT_DATE THEN 'EXPIRED'
+			WHEN expiry_date <= (CURRENT_DATE + INTERVAL '30 days') THEN 'EXPIRING_SOON'
 			ELSE 'VALID'
 		END
 		WHERE expiry_date IS NOT NULL`)
@@ -383,7 +383,8 @@ func (dc *DocumentsController) UploadDocument(c *gin.Context) {
 
 	webFilePath := fmt.Sprintf("uploads/%s", filename)
 
-	res, err := database.DB.Exec(`
+	var newID int64
+	err = database.DB.QueryRow(`
 		INSERT INTO documents (
 			mine_id, contractor_id, document_type, file_path, certificate_number,
 			issue_date, expiry_date, ocr_raw_text, uploaded_by, status,
@@ -391,19 +392,18 @@ func (dc *DocumentsController) UploadDocument(c *gin.Context) {
 			violation_details, risk_level, corrective_action, due_date,
 			regulatory_reference, ocr_data_json, workflow_status
 		)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING_REVIEW')`,
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING_REVIEW')
+		RETURNING id`,
 		mineIDVal, contractorIDVal, docType, webFilePath, certNumber,
 		issueDate, expiryDate, rawText, userID, status,
 		mineCode, inspectorName, inspectionDate, complianceStatus,
 		violationDetails, riskLevel, correctiveAction, dueDate,
-		regulatoryRef, string(fullOCRJSON))
+		regulatoryRef, string(fullOCRJSON)).Scan(&newID)
 
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "Failed to save document to database", err.Error())
 		return
 	}
-
-	newID, _ := res.LastInsertId()
 	utils.LogAudit(userID.(int), "DOCUMENT_UPLOADED", "DOCUMENTS", strconv.FormatInt(newID, 10),
 		map[string]interface{}{
 			"document_type":      docType,
@@ -604,24 +604,25 @@ func (dc *DocumentsController) FlagViolationFromDocument(c *gin.Context) {
 	}
 
 	// Insert into violations
-	vRes, err := database.DB.Exec(`
-		INSERT INTO violations (mine_id, title, description, severity, status, source, detected_by)
-		VALUES (?, ?, ?, ?, 'OPEN', 'DOCUMENT_OCR', ?)`,
-		midVal, req.Title, fmt.Sprintf("%s (Ref: %s / %s)", req.Description, certNumber, docType), req.Severity, userID)
+	vCode := fmt.Sprintf("VIO-DOC-%d-%d", id, time.Now().Unix()%100000)
+	var vID int64
+	err = database.DB.QueryRow(`
+		INSERT INTO violations (violation_code, mine_id, category_id, description, severity, status, reported_by, deadline)
+		VALUES (?, ?, 1, ?, ?, 'OPEN', ?, ?)
+		RETURNING id`,
+		vCode, midVal, fmt.Sprintf("[%s] %s (Ref: %s / %s)", req.Title, req.Description, certNumber, docType), req.Severity, userID, req.DueDate).Scan(&vID)
 
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "Failed to create violation", err.Error())
 		return
 	}
 
-	vID, _ := vRes.LastInsertId()
-
 	// Insert corrective action
 	if req.CorrectiveAction != "" {
 		_, _ = database.DB.Exec(`
-			INSERT INTO corrective_actions (violation_id, action_plan, due_date, status, assigned_to)
-			VALUES (?, ?, ?, 'PENDING', ?)`,
-			vID, req.CorrectiveAction, req.DueDate, userID)
+			INSERT INTO corrective_actions (violation_id, assigned_to, action_description, deadline, status)
+			VALUES (?, ?, ?, ?, 'ASSIGNED')`,
+			vID, userID, req.CorrectiveAction, req.DueDate)
 	}
 
 	// Update document status

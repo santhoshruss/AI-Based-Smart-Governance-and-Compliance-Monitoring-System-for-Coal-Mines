@@ -162,19 +162,20 @@ func (ac *AttendanceController) SelfCheckin(c *gin.Context) {
 	}
 
 	// 7. Insert into append-only attendance_checkin_events table
-	eventRes, err := database.DB.Exec(`
+	var eventID int64
+	err = database.DB.QueryRow(`
 		INSERT INTO attendance_checkin_events (
 			mine_id, worker_id, lat, lng, distance_from_mine_m, event_type,
 			is_mock_location, device_uptime_ms, client_reported_time, tamper_flag, liveness_passed, recorded_at
-		) VALUES (?, ?, ?, ?, ?, 'CHECKIN', ?, ?, ?, ?, ?, ?)`,
+		) VALUES (?, ?, ?, ?, ?, 'CHECKIN', ?, ?, ?, ?, ?, ?)
+		RETURNING id`,
 		req.MineID, req.WorkerID, req.Lat, req.Lng, distanceM,
-		req.IsMockLocation, req.DeviceUptimeMs, clientReportedTimeVal, tamperFlag, livenessPassed, now)
+		req.IsMockLocation, req.DeviceUptimeMs, clientReportedTimeVal, tamperFlag, livenessPassed, now).Scan(&eventID)
 
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "Failed to record checkin event", err.Error())
 		return
 	}
-	eventID, _ := eventRes.LastInsertId()
 
 	// 8. Upsert daily attendance summary record
 	var markedByVal interface{} = nil
@@ -188,16 +189,16 @@ func (ac *AttendanceController) SelfCheckin(c *gin.Context) {
 			checkin_lat, checkin_lng, distance_from_mine_m, is_mock_location,
 			device_uptime_ms, client_reported_time, tamper_flag, marked_by
 		) VALUES (?, ?, ?, 'PRESENT', 'GENERAL', 0.0, ?, ?, ?, ?, ?, ?, ?, ?)
-		ON DUPLICATE KEY UPDATE
+		ON CONFLICT (mine_id, worker_id, record_date) DO UPDATE SET
 			status = 'PRESENT',
-			checkin_lat = VALUES(checkin_lat),
-			checkin_lng = VALUES(checkin_lng),
-			distance_from_mine_m = VALUES(distance_from_mine_m),
-			is_mock_location = VALUES(is_mock_location),
-			device_uptime_ms = VALUES(device_uptime_ms),
-			client_reported_time = VALUES(client_reported_time),
-			tamper_flag = VALUES(tamper_flag) OR tamper_flag,
-			marked_by = VALUES(marked_by)`,
+			checkin_lat = EXCLUDED.checkin_lat,
+			checkin_lng = EXCLUDED.checkin_lng,
+			distance_from_mine_m = EXCLUDED.distance_from_mine_m,
+			is_mock_location = EXCLUDED.is_mock_location,
+			device_uptime_ms = EXCLUDED.device_uptime_ms,
+			client_reported_time = EXCLUDED.client_reported_time,
+			tamper_flag = EXCLUDED.tamper_flag OR attendance.tamper_flag,
+			marked_by = EXCLUDED.marked_by`,
 		req.MineID, req.WorkerID, recordDate,
 		req.Lat, req.Lng, distanceM, req.IsMockLocation,
 		req.DeviceUptimeMs, clientReportedTimeVal, tamperFlag, markedByVal)
@@ -208,7 +209,7 @@ func (ac *AttendanceController) SelfCheckin(c *gin.Context) {
 	prevErr := database.DB.QueryRow(`
 		SELECT lat, lng, recorded_at 
 		FROM attendance_checkin_events 
-		WHERE worker_id = ? AND id != ? AND recorded_at >= DATE_SUB(?, INTERVAL 60 MINUTE)
+		WHERE worker_id = ? AND id != ? AND recorded_at >= (?::timestamptz - INTERVAL '60 minutes')
 		ORDER BY recorded_at DESC LIMIT 1`,
 		req.WorkerID, eventID, now).Scan(&prevLat, &prevLng, &prevRecordedAt)
 
@@ -232,7 +233,7 @@ func (ac *AttendanceController) SelfCheckin(c *gin.Context) {
 		SELECT COUNT(DISTINCT worker_id)
 		FROM attendance_checkin_events
 		WHERE mine_id = ? 
-		  AND recorded_at >= DATE_SUB(?, INTERVAL 5 SECOND)
+		  AND recorded_at >= (?::timestamptz - INTERVAL '5 seconds')
 		  AND (lat BETWEEN ? - 0.0001 AND ? + 0.0001)
 		  AND (lng BETWEEN ? - 0.0001 AND ? + 0.0001)`,
 		req.MineID, now, req.Lat, req.Lat, req.Lng, req.Lng).Scan(&clusterCount)
@@ -314,7 +315,11 @@ func (ac *AttendanceController) MarkAttendance(c *gin.Context) {
 			_, err = tx.Exec(`
 				INSERT INTO attendance (mine_id, worker_id, record_date, status, shift, overtime_hours, marked_by)
 				VALUES (?, ?, ?, ?, ?, ?, ?)
-				ON DUPLICATE KEY UPDATE status = VALUES(status), shift = VALUES(shift), overtime_hours = VALUES(overtime_hours), marked_by = VALUES(marked_by)`,
+				ON CONFLICT (mine_id, worker_id, record_date) DO UPDATE SET
+					status = EXCLUDED.status,
+					shift = EXCLUDED.shift,
+					overtime_hours = EXCLUDED.overtime_hours,
+					marked_by = EXCLUDED.marked_by`,
 				req.MineID, wID, req.RecordDate, req.Status, req.Shift, req.OvertimeHours, userID)
 			if err != nil {
 				utils.Fail(c, http.StatusInternalServerError, "Failed to mark batch attendance", err.Error())
@@ -336,17 +341,24 @@ func (ac *AttendanceController) MarkAttendance(c *gin.Context) {
 	}
 
 	// 2. Individual worker or aggregate mine total
-	res, err := database.DB.Exec(`
+	var newID int64
+	err := database.DB.QueryRow(`
 		INSERT INTO attendance (mine_id, worker_id, record_date, status, shift, overtime_hours, present_count, total_count, marked_by)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		req.MineID, req.WorkerID, req.RecordDate, req.Status, req.Shift, req.OvertimeHours, req.PresentCount, req.TotalCount, userID)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+		ON CONFLICT (mine_id, worker_id, record_date) DO UPDATE SET
+			status = EXCLUDED.status,
+			shift = EXCLUDED.shift,
+			overtime_hours = EXCLUDED.overtime_hours,
+			present_count = EXCLUDED.present_count,
+			total_count = EXCLUDED.total_count,
+			marked_by = EXCLUDED.marked_by
+		RETURNING id`,
+		req.MineID, req.WorkerID, req.RecordDate, req.Status, req.Shift, req.OvertimeHours, req.PresentCount, req.TotalCount, userID).Scan(&newID)
 
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "Failed to mark attendance", err.Error())
 		return
 	}
-
-	newID, _ := res.LastInsertId()
 	utils.LogAudit(userID, "ATTENDANCE_MARKED", "ATTENDANCE", strconv.FormatInt(newID, 10),
 		map[string]interface{}{"mine_id": req.MineID, "worker_id": req.WorkerID, "date": req.RecordDate, "status": req.Status}, c.ClientIP())
 
@@ -654,17 +666,17 @@ func (ac *AttendanceController) CreateWorker(c *gin.Context) {
 	userIDVal, _ := c.Get(middleware.CtxUserID)
 	userID := userIDVal.(int)
 
-	res, err := database.DB.Exec(`
+	var newID int64
+	err := database.DB.QueryRow(`
 		INSERT INTO workers (mine_id, worker_code, full_name, designation, department_id, contractor_id, status)
-		VALUES (?, ?, ?, ?, ?, ?, 'ACTIVE')`,
-		req.MineID, req.WorkerCode, req.FullName, req.Designation, req.DepartmentID, req.ContractorID)
+		VALUES (?, ?, ?, ?, ?, ?, 'ACTIVE')
+		RETURNING id`,
+		req.MineID, req.WorkerCode, req.FullName, req.Designation, req.DepartmentID, req.ContractorID).Scan(&newID)
 
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "Failed to create worker (code may already exist)", err.Error())
 		return
 	}
-
-	newID, _ := res.LastInsertId()
 	utils.LogAudit(userID, "WORKER_CREATED", "WORKERS", strconv.FormatInt(newID, 10),
 		map[string]interface{}{"worker_code": req.WorkerCode, "full_name": req.FullName, "mine_id": req.MineID}, c.ClientIP())
 

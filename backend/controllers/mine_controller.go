@@ -207,19 +207,19 @@ func (mc *MineController) CreateMine(c *gin.Context) {
 
 	userID, _ := c.Get(middleware.CtxUserID)
 
-	result, err := database.DB.Exec(`
+	var newID int64
+	err := database.DB.QueryRow(`
 		INSERT INTO mines (mine_name, mine_code, subsidiary_id, state, district, latitude, longitude,
 		                    mine_type, production_capacity, manager_id, status, created_by, updated_by)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		RETURNING id`,
 		req.MineName, req.MineCode, req.SubsidiaryID, req.State, req.District, req.Latitude, req.Longitude,
-		req.MineType, req.ProductionCapacity, req.ManagerID, req.Status, userID, userID)
+		req.MineType, req.ProductionCapacity, req.ManagerID, req.Status, userID, userID).Scan(&newID)
 
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "Failed to create mine (check that mine_code is unique)", err.Error())
 		return
 	}
-
-	newID, _ := result.LastInsertId()
 	utils.LogAudit(userID.(int), "MINE_CREATED", "MINES", strconv.FormatInt(newID, 10),
 		map[string]interface{}{"mine_name": req.MineName, "mine_code": req.MineCode}, c.ClientIP())
 

@@ -29,7 +29,7 @@ func (cc *ContractorController) ListContractors(c *gin.Context) {
 		       c.status, COALESCE(c.blacklist_reason, ''), c.created_at,
 		       (SELECT COUNT(*) FROM workers w WHERE w.contractor_id = c.id AND w.status = 'ACTIVE') AS worker_count,
 		       (SELECT COUNT(*) FROM documents d WHERE d.contractor_id = c.id) AS document_count,
-		       DATEDIFF(c.contract_end, CURDATE()) AS days_until_expiry
+		       (c.contract_end - CURRENT_DATE) AS days_until_expiry
 		FROM contractors c
 		JOIN mines m ON m.id = c.mine_id
 		WHERE 1=1`
@@ -118,17 +118,17 @@ func (cc *ContractorController) CreateContractor(c *gin.Context) {
 	userIDVal, _ := c.Get(middleware.CtxUserID)
 	userID := userIDVal.(int)
 
-	res, err := database.DB.Exec(`
+	var newID int64
+	err := database.DB.QueryRow(`
 		INSERT INTO contractors (mine_id, company_name, contact_person, phone, email, contract_type, contract_start, contract_end, status)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		req.MineID, req.CompanyName, req.ContactPerson, req.Phone, req.Email, req.ContractType, req.ContractStart, req.ContractEnd, req.Status)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+		RETURNING id`,
+		req.MineID, req.CompanyName, req.ContactPerson, req.Phone, req.Email, req.ContractType, req.ContractStart, req.ContractEnd, req.Status).Scan(&newID)
 
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "Failed to create contractor", err.Error())
 		return
 	}
-
-	newID, _ := res.LastInsertId()
 	utils.LogAudit(userID, "CONTRACTOR_CREATED", "CONTRACTORS", strconv.FormatInt(newID, 10),
 		map[string]interface{}{"company_name": req.CompanyName, "mine_id": req.MineID}, c.ClientIP())
 
@@ -237,10 +237,10 @@ func (cc *ContractorController) BlacklistContractor(c *gin.Context) {
 // generating notifications for oversight personnel.
 func (cc *ContractorController) CheckContractExpiries(c *gin.Context) {
 	rows, err := database.DB.Query(`
-		SELECT c.id, c.company_name, c.mine_id, m.mine_name, c.contract_end, DATEDIFF(c.contract_end, CURDATE()) AS days_left
+		SELECT c.id, c.company_name, c.mine_id, m.mine_name, c.contract_end, (c.contract_end - CURRENT_DATE) AS days_left
 		FROM contractors c
 		JOIN mines m ON m.id = c.mine_id
-		WHERE c.status = 'ACTIVE' AND c.contract_end <= DATE_ADD(CURDATE(), INTERVAL 30 DAY)`)
+		WHERE c.status = 'ACTIVE' AND c.contract_end <= (CURRENT_DATE + INTERVAL '30 days')`)
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "Failed to query contract expiries", err.Error())
 		return

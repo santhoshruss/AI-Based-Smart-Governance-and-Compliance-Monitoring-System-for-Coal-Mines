@@ -10,18 +10,21 @@ import (
 
 // Config holds all environment-driven application settings.
 type Config struct {
-	AppPort      string
-	DBHost       string
-	DBPort       string
-	DBUser       string
-	DBPassword   string
-	DBName       string
-	JWTSecret    string
-	JWTExpiryHrs string
+	AppPort         string
+	DatabaseURL     string
+	DBHost          string
+	DBPort          string
+	DBUser          string
+	DBPassword      string
+	DBName          string
+	DBSSLMode       string
+	JWTSecret       string
+	JWTExpiryHrs    string
 	UploadDir       string
 	AIServiceURL    string
 	SLACronSchedule string
 	GeofenceRadiusM float64
+	CorsOrigins     string
 }
 
 // Load reads .env (if present) and environment variables into a Config struct.
@@ -38,19 +41,31 @@ func Load() *Config {
 		radius = parsed
 	}
 
+	// Render injects PORT; local dev usually sets APP_PORT or defaults to 8080
+	appPort := getEnv("PORT", getEnv("APP_PORT", "8080"))
+
+	dbHost := getEnv("DB_HOST", "127.0.0.1")
+	defaultSSL := "disable"
+	if dbHost != "127.0.0.1" && dbHost != "localhost" {
+		defaultSSL = "require"
+	}
+
 	cfg := &Config{
-		AppPort:         getEnv("APP_PORT", "8080"),
-		DBHost:          getEnv("DB_HOST", "127.0.0.1"),
-		DBPort:          getEnv("DB_PORT", "3306"),
-		DBUser:          getEnv("DB_USER", "root"),
-		DBPassword:      getEnv("DB_PASSWORD", ""),
+		AppPort:         appPort,
+		DatabaseURL:     getEnv("DATABASE_URL", ""),
+		DBHost:          dbHost,
+		DBPort:          getEnv("DB_PORT", "5432"),
+		DBUser:          getEnv("DB_USER", "postgres"),
+		DBPassword:      getEnv("DB_PASSWORD", "postgres"),
 		DBName:          getEnv("DB_NAME", "coal_governance"),
+		DBSSLMode:       getEnv("DB_SSLMODE", defaultSSL),
 		JWTSecret:       getEnv("JWT_SECRET", "CHANGE_ME_IN_PRODUCTION"),
 		JWTExpiryHrs:    getEnv("JWT_EXPIRY_HOURS", "12"),
 		UploadDir:       getEnv("UPLOAD_DIR", "./uploads"),
 		AIServiceURL:    getEnv("AI_SERVICE_URL", "http://localhost:5000"),
 		SLACronSchedule: getEnv("SLA_CRON_SCHEDULE", "@hourly"),
 		GeofenceRadiusM: radius,
+		CorsOrigins:     getEnv("CORS_ORIGINS", "*"),
 	}
 
 	if cfg.JWTSecret == "CHANGE_ME_IN_PRODUCTION" {

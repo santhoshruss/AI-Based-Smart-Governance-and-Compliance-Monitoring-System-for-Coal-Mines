@@ -218,17 +218,17 @@ func (ac *AuthController) CreateUser(c *gin.Context) {
 	userIDVal, _ := c.Get(middleware.CtxUserID)
 	userID := userIDVal.(int)
 
-	res, err := database.DB.Exec(`
+	var newID int64
+	err = database.DB.QueryRow(`
 		INSERT INTO users (full_name, email, password_hash, role_id, subsidiary_id, phone, status, created_by, updated_by)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		req.FullName, req.Email, pwdHash, req.RoleID, req.SubsidiaryID, req.Phone, req.Status, userID, userID)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+		RETURNING id`,
+		req.FullName, req.Email, pwdHash, req.RoleID, req.SubsidiaryID, req.Phone, req.Status, userID, userID).Scan(&newID)
 
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "Failed to create user (check if email already exists)", err.Error())
 		return
 	}
-
-	newID, _ := res.LastInsertId()
 	utils.LogAudit(userID, "USER_CREATED", "USERS", strconv.FormatInt(newID, 10),
 		map[string]interface{}{"email": req.Email, "full_name": req.FullName, "role_id": req.RoleID}, c.ClientIP())
 

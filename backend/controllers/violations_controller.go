@@ -242,17 +242,17 @@ func (vc *ViolationsController) CreateViolation(c *gin.Context) {
 		req.Deadline = deadline.Format("2006-01-02")
 	}
 
-	res, err := database.DB.Exec(`
+	var newID int64
+	err := database.DB.QueryRow(`
 		INSERT INTO violations (violation_code, mine_id, category_id, inspection_id, description, severity, reported_by, deadline, status, escalation_level, sla_hours)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'OPEN', 1, ?)`,
-		violationCode, req.MineID, req.CategoryID, req.InspectionID, req.Description, req.Severity, userID, req.Deadline, slaHours)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'OPEN', 1, ?)
+		RETURNING id`,
+		violationCode, req.MineID, req.CategoryID, req.InspectionID, req.Description, req.Severity, userID, req.Deadline, slaHours).Scan(&newID)
 
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "Failed to record manual violation", err.Error())
 		return
 	}
-
-	newID, _ := res.LastInsertId()
 	utils.LogAudit(userID.(int), "VIOLATION_MANUALLY_CREATED", "VIOLATIONS", violationCode,
 		map[string]interface{}{"mine_id": req.MineID, "severity": req.Severity, "sla_hours": slaHours, "classification": classification}, c.ClientIP())
 
@@ -384,15 +384,16 @@ func (vc *ViolationsController) AssignViolation(c *gin.Context) {
 	defer tx.Rollback()
 
 	// 3. Create corrective_actions record (status='ASSIGNED')
-	res, err := tx.Exec(`
+	var actionID int64
+	err = tx.QueryRow(`
 		INSERT INTO corrective_actions (violation_id, assigned_to, action_description, deadline, status)
-		VALUES (?, ?, ?, ?, 'ASSIGNED')`,
-		violationID, req.AssignedTo, req.ActionDescription, req.Deadline)
+		VALUES (?, ?, ?, ?, 'ASSIGNED')
+		RETURNING id`,
+		violationID, req.AssignedTo, req.ActionDescription, req.Deadline).Scan(&actionID)
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "Failed to create corrective action record", err.Error())
 		return
 	}
-	actionID, _ := res.LastInsertId()
 
 	// 4. Update violation to IN_PROGRESS and set responsible_person + deadline
 	_, err = tx.Exec(`

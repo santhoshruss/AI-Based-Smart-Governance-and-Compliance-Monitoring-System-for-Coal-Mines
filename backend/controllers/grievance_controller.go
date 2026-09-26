@@ -55,17 +55,17 @@ func (gc *GrievanceController) SubmitGrievance(c *gin.Context) {
 		classification = "URGENT"
 	}
 
-	res, err := database.DB.Exec(`
+	var newID int64
+	err := database.DB.QueryRow(`
 		INSERT INTO grievances (worker_id, mine_id, category, description, status, escalation_level, sla_hours)
-		VALUES (?, ?, ?, ?, 'SUBMITTED', 1, ?)`,
-		req.WorkerID, req.MineID, req.Category, req.Description, slaHours)
+		VALUES (?, ?, ?, ?, 'SUBMITTED', 1, ?)
+		RETURNING id`,
+		req.WorkerID, req.MineID, req.Category, req.Description, slaHours).Scan(&newID)
 
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "Failed to submit grievance", err.Error())
 		return
 	}
-
-	newID, _ := res.LastInsertId()
 
 	// Notify Safety Officer / Mine Manager
 	var mineName string

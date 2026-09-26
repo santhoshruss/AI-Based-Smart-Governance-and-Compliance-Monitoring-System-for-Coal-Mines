@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -24,17 +25,27 @@ func main() {
 
 	router := gin.Default()
 
-	// CORS is intentionally permissive for local hackathon demo purposes
-	// (frontend served statically from a different port). Tighten
-	// AllowOrigins for any real deployment.
-	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: false,
+	corsConfig := cors.Config{
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Accept", "X-Requested-With"},
+		ExposeHeaders:    []string{"Content-Length", "Content-Disposition"},
+		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
-	}))
+	}
+	if cfg.CorsOrigins == "*" || cfg.CorsOrigins == "" {
+		corsConfig.AllowAllOrigins = true
+		corsConfig.AllowCredentials = false // cannot use AllowCredentials with AllowAllOrigins in standard CORS
+	} else {
+		origins := []string{}
+		for _, o := range strings.Split(cfg.CorsOrigins, ",") {
+			trimmed := strings.TrimSpace(o)
+			if trimmed != "" {
+				origins = append(origins, trimmed)
+			}
+		}
+		corsConfig.AllowOrigins = origins
+	}
+	router.Use(cors.New(corsConfig))
 
 	routes.RegisterRoutes(router, cfg)
 

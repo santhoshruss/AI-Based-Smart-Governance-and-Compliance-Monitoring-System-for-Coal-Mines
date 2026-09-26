@@ -114,7 +114,7 @@ func escalateViolationsL1toL2() int {
 		FROM violations
 		WHERE status IN ('OPEN', 'IN_PROGRESS')
 		  AND escalation_level = 1
-		  AND NOW() > DATE_ADD(created_at, INTERVAL sla_hours HOUR)`
+		  AND NOW() > (created_at + (sla_hours * INTERVAL '1 hour'))`
 
 	rows, err := database.DB.Query(query)
 	if err != nil {
@@ -173,7 +173,7 @@ func escalateViolationsL2toL3() int {
 		  AND escalation_level = 2
 		  AND (severity = 'CRITICAL' OR sla_hours = 2)
 		  AND escalated_at IS NOT NULL
-		  AND NOW() >= DATE_ADD(escalated_at, INTERVAL 7 DAY)`
+		  AND NOW() >= (escalated_at + INTERVAL '7 days')`
 
 	rows, err := database.DB.Query(query)
 	if err != nil {
@@ -262,7 +262,7 @@ func escalateGrievancesL1toL2() int {
 		FROM grievances
 		WHERE status IN ('SUBMITTED', 'IN_REVIEW')
 		  AND escalation_level = 1
-		  AND NOW() > DATE_ADD(created_at, INTERVAL sla_hours HOUR)`
+		  AND NOW() > (created_at + (sla_hours * INTERVAL '1 hour'))`
 
 	rows, err := database.DB.Query(query)
 	if err != nil {
@@ -321,7 +321,7 @@ func escalateGrievancesL2toL3() int {
 		  AND escalation_level = 2
 		  AND (category = 'Safety' OR sla_hours = 2)
 		  AND escalated_at IS NOT NULL
-		  AND NOW() >= DATE_ADD(escalated_at, INTERVAL 7 DAY)`
+		  AND NOW() >= (escalated_at + INTERVAL '7 days')`
 
 	rows, err := database.DB.Query(query)
 	if err != nil {
