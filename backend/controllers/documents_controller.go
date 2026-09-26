@@ -3,6 +3,7 @@ package controllers
 import (
 	"bytes"
 	"database/sql"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -262,9 +263,17 @@ func (dc *DocumentsController) UploadDocument(c *gin.Context) {
 		filePathNormalized = filepath.ToSlash(absPath)
 	}
 
+	// Read saved file bytes and encode to base64 for cross-network AI service
+	fileBytes, _ := os.ReadFile(filePath)
+	fileBase64 := base64.StdEncoding.EncodeToString(fileBytes)
+
 	// Call Flask OCR service
 	ocrURL := fmt.Sprintf("%s/ocr", dc.Cfg.AIServiceURL)
-	payload := map[string]string{"file_path": filePathNormalized}
+	payload := map[string]string{
+		"file_path":   filePathNormalized,
+		"file_base64": fileBase64,
+		"filename":    filename,
+	}
 	payloadJSON, _ := json.Marshal(payload)
 
 	var certNumber, docType, issueDate, expiryDate, rawText string

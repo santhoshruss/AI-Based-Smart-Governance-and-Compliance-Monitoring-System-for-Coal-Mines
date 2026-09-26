@@ -1,6 +1,8 @@
 import re
 import os
 import json
+import base64
+import tempfile
 import datetime
 from pathlib import Path
 
@@ -261,15 +263,38 @@ def clean_ocr_spaces(text):
     return fixed
 
 
-def process_document_ocr(file_path):
+def process_document_ocr(file_path=None, file_base64=None, filename=None):
     """
     Runs multimodal OCR on the uploaded document in real time:
     1. Gemini Multimodal Vision (if active)
     2. Local Neural RapidOCR / PyMuPDF PDF Engine
     3. Dynamic statutory DGMS field extraction across all 13 fields.
     """
-    resolved_path = resolve_file_path(file_path)
-    filename = os.path.basename(file_path if file_path else "document.png")
+    temp_file = None
+    if file_base64:
+        try:
+            if "," in file_base64:
+                file_base64 = file_base64.split(",", 1)[1]
+            raw_bytes = base64.b64decode(file_base64)
+            ext = os.path.splitext(filename)[1] if filename else ".png"
+            if not ext:
+                ext = ".png"
+            tf = tempfile.NamedTemporaryFile(suffix=ext, delete=False)
+            tf.write(raw_bytes)
+            tf.flush()
+            tf.close()
+            temp_file = tf.name
+            resolved_path = temp_file
+            if not filename:
+                filename = os.path.basename(temp_file)
+        except Exception as e:
+            print(f"[OCR] Error decoding base64 payload: {e}")
+            resolved_path = resolve_file_path(file_path)
+    else:
+        resolved_path = resolve_file_path(file_path)
+
+    if not filename:
+        filename = os.path.basename(file_path if file_path else "document.png")
     
     # 1. Try Gemini Vision if available
     if resolved_path:
