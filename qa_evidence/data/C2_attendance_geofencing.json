@@ -1,0 +1,35 @@
+{
+  "test_id": "C2_attendance_geofencing",
+  "request": {
+    "checkin_1": {
+      "lat": 22.3595,
+      "lng": 82.6892
+    },
+    "checkin_2": {
+      "lat": 24.25,
+      "lng": 87.45
+    }
+  },
+  "response": {
+    "res1": {
+      "success": true,
+      "message": "Self check-in recorded successfully",
+      "data": {
+        "distance_from_mine_m": 0,
+        "event_id": 1,
+        "geofence_radius_m": 500,
+        "liveness_passed": true,
+        "mine_id": 1,
+        "recorded_at": "2026-09-24T15:39:45Z",
+        "status": "PRESENT",
+        "tamper_flag": false,
+        "worker_id": 1
+      }
+    },
+    "res2": {
+      "success": false,
+      "message": "Outside mine perimeter: distance 529634.7m exceeds 500m geofence radius",
+      "error": "OUTSIDE_GEOFENCE"
+    }
+  }
+}

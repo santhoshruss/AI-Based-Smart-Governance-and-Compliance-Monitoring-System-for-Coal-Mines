@@ -1,0 +1,15 @@
+{
+  "test_id": "D9d_dismiss_guard_short_reason",
+  "request": {
+    "violation_id": 9,
+    "reason": "short"
+  },
+  "response": {
+    "status": 400,
+    "body": {
+      "success": false,
+      "message": "Dismissal reason must be at least 10 characters",
+      "error": "reason too short or missing"
+    }
+  }
+}

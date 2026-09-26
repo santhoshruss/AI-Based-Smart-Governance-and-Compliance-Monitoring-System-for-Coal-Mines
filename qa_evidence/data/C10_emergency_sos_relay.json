@@ -1,0 +1,139 @@
+{
+  "test_id": "C10_emergency_sos_relay",
+  "request": {
+    "sos_payload": {
+      "mine_id": 1,
+      "type": "FIRE"
+    }
+  },
+  "response": {
+    "sos_response": {
+      "success": true,
+      "message": "Emergency alert sent",
+      "data": {
+        "bypassed_count": 1,
+        "hops_count": 5,
+        "incident_id": 2,
+        "incident_type": "FIRE",
+        "mine_name": "Gevra Opencast Mine",
+        "notified_count": 5,
+        "relay_hops": [
+          {
+            "node_id": 1,
+            "node_name": "NODE-01-SEAM-FACE",
+            "hop_number": 1,
+            "latency_ms": 84,
+            "signal_strength_pct": 98
+          },
+          {
+            "node_id": 2,
+            "node_name": "NODE-02-INCLINE-WAY",
+            "hop_number": 2,
+            "latency_ms": 84,
+            "signal_strength_pct": 90.5
+          },
+          {
+            "node_id": 4,
+            "node_name": "NODE-04-VENT-SHAFT",
+            "hop_number": 3,
+            "latency_ms": 84,
+            "signal_strength_pct": 83
+          },
+          {
+            "node_id": 5,
+            "node_name": "NODE-05-PIT-ENTRY",
+            "hop_number": 4,
+            "latency_ms": 84,
+            "signal_strength_pct": 75.5
+          },
+          {
+            "node_id": 6,
+            "node_name": "NODE-06-SURFACE-GW",
+            "hop_number": 5,
+            "latency_ms": 84,
+            "signal_strength_pct": 68
+          }
+        ],
+        "total_latency_ms": 420,
+        "triggered_at": "2026-09-24T21:10:43.7885904+05:30",
+        "type_label": "Fire / Spontaneous Combustion"
+      }
+    },
+    "relay_path_response": {
+      "success": true,
+      "message": "Relay path fetched successfully",
+      "data": {
+        "hops": [
+          {
+            "id": 1,
+            "incident_id": 2,
+            "node_id": 1,
+            "node_name": "NODE-01-SEAM-FACE",
+            "hop_sequence": 1,
+            "battery_pct": 97.98,
+            "node_status": "ONLINE",
+            "hop_number": 1,
+            "latency_ms": 84,
+            "signal_strength_pct": 98,
+            "relayed_at": "2026-09-24T21:10:44+05:30"
+          },
+          {
+            "id": 2,
+            "incident_id": 2,
+            "node_id": 2,
+            "node_name": "NODE-02-INCLINE-WAY",
+            "hop_sequence": 2,
+            "battery_pct": 93.57,
+            "node_status": "ONLINE",
+            "hop_number": 2,
+            "latency_ms": 84,
+            "signal_strength_pct": 90.5,
+            "relayed_at": "2026-09-24T21:10:44+05:30"
+          },
+          {
+            "id": 3,
+            "incident_id": 2,
+            "node_id": 4,
+            "node_name": "NODE-04-VENT-SHAFT",
+            "hop_sequence": 4,
+            "battery_pct": 94.91,
+            "node_status": "ONLINE",
+            "hop_number": 3,
+            "latency_ms": 84,
+            "signal_strength_pct": 83,
+            "relayed_at": "2026-09-24T21:10:44+05:30"
+          },
+          {
+            "id": 4,
+            "incident_id": 2,
+            "node_id": 5,
+            "node_name": "NODE-05-PIT-ENTRY",
+            "hop_sequence": 5,
+            "battery_pct": 98.18,
+            "node_status": "ONLINE",
+            "hop_number": 4,
+            "latency_ms": 84,
+            "signal_strength_pct": 75.5,
+            "relayed_at": "2026-09-24T21:10:44+05:30"
+          },
+          {
+            "id": 5,
+            "incident_id": 2,
+            "node_id": 6,
+            "node_name": "NODE-06-SURFACE-GW",
+            "hop_sequence": 6,
+            "battery_pct": 99.4,
+            "node_status": "ONLINE",
+            "hop_number": 5,
+            "latency_ms": 84,
+            "signal_strength_pct": 68,
+            "relayed_at": "2026-09-24T21:10:44+05:30"
+          }
+        ],
+        "hops_count": 5,
+        "incident_id": 2,
+        "total_latency_ms": 420
+      }
+    }
+  }
+}

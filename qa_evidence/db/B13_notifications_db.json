@@ -1,0 +1,32 @@
+[
+  {
+    "id": 3,
+    "recipient_id": 3,
+    "title": "New Grievance Submitted \u2014 Gevra Opencast Mine",
+    "message": "Grievance #4 (SAFETY, SLA: 48 hrs) reported: Worker helmet buckle is broken and requires immediate replacement.",
+    "severity": "WARNING",
+    "type": "GRIEVANCE",
+    "is_read": 0,
+    "created_at": "2026-09-24 21:09:41"
+  },
+  {
+    "id": 2,
+    "recipient_id": 2,
+    "title": "New Grievance Submitted \u2014 Gevra Opencast Mine",
+    "message": "Grievance #4 (SAFETY, SLA: 48 hrs) reported: Worker helmet buckle is broken and requires immediate replacement.",
+    "severity": "WARNING",
+    "type": "GRIEVANCE",
+    "is_read": 0,
+    "created_at": "2026-09-24 21:09:41"
+  },
+  {
+    "id": 1,
+    "recipient_id": 1,
+    "title": "New Grievance Submitted \u2014 Gevra Opencast Mine",
+    "message": "Grievance #4 (SAFETY, SLA: 48 hrs) reported: Worker helmet buckle is broken and requires immediate replacement.",
+    "severity": "WARNING",
+    "type": "GRIEVANCE",
+    "is_read": 0,
+    "created_at": "2026-09-24 21:09:41"
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "test_id": "B4_violations_update",
+  "request": {
+    "method": "PUT",
+    "url": "http://localhost:8080/api/violations/1"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "message": "Violation updated successfully"
+    }
+  }
+}

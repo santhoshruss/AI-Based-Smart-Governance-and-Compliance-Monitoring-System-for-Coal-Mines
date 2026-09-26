@@ -1,0 +1,14 @@
+{
+  "test_id": "D9c_dismiss_guard_assigned_ca",
+  "request": {
+    "violation_id": 9
+  },
+  "response": {
+    "status": 400,
+    "body": {
+      "success": false,
+      "message": "Cannot dismiss violation: active corrective action(s) are already assigned or in progress",
+      "error": "active corrective action exists"
+    }
+  }
+}

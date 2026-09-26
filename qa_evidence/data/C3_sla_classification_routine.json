@@ -1,0 +1,19 @@
+{
+  "test_id": "C3_sla_classification_routine",
+  "request": {
+    "description": "canteen allowance query"
+  },
+  "response": {
+    "status": 201,
+    "body": {
+      "success": true,
+      "message": "Violation reported successfully",
+      "data": {
+        "classification": "ROUTINE",
+        "id": 3,
+        "sla_hours": 48,
+        "violation_code": "VIO-2026-0003"
+      }
+    }
+  }
+}

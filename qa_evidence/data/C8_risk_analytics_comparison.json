@@ -1,0 +1,556 @@
+{
+  "test_id": "C8_risk_analytics_comparison",
+  "request": {},
+  "response": {
+    "risk_before": {
+      "success": true,
+      "message": "Risk scores fetched",
+      "data": [
+        {
+          "id": 1,
+          "mine_id": 1,
+          "mine_name": "Gevra Opencast Mine",
+          "score": 56,
+          "classification": "MEDIUM",
+          "factors": [
+            {
+              "name": "1 critical violations",
+              "impact": 25
+            },
+            {
+              "name": "1 medium violations",
+              "impact": 8
+            },
+            {
+              "name": "1 low violations",
+              "impact": 3
+            },
+            {
+              "name": "2 environmental warning readings",
+              "impact": 20
+            }
+          ],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 2,
+          "mine_id": 2,
+          "mine_name": "Kusmunda Opencast Mine",
+          "score": 10,
+          "classification": "LOW",
+          "factors": [
+            {
+              "name": "1 environmental warning readings",
+              "impact": 10
+            }
+          ],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 3,
+          "mine_id": 3,
+          "mine_name": "Dipka Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 4,
+          "mine_id": 4,
+          "mine_name": "Jayant Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 5,
+          "mine_id": 5,
+          "mine_name": "Nigahi Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 6,
+          "mine_id": 6,
+          "mine_name": "Dudhichua Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 7,
+          "mine_id": 7,
+          "mine_name": "Lakhanpur Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 8,
+          "mine_id": 8,
+          "mine_name": "Basundhara Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 9,
+          "mine_id": 9,
+          "mine_name": "Bharatpur Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 10,
+          "mine_id": 10,
+          "mine_name": "Talcher Underground Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 11,
+          "mine_id": 11,
+          "mine_name": "QA Test Mine Alpha Renamed",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        }
+      ]
+    },
+    "risk_after": {
+      "success": true,
+      "message": "Risk scores fetched",
+      "data": [
+        {
+          "id": 1,
+          "mine_id": 1,
+          "mine_name": "Gevra Opencast Mine",
+          "score": 56,
+          "classification": "MEDIUM",
+          "factors": [
+            {
+              "name": "1 critical violations",
+              "impact": 25
+            },
+            {
+              "name": "1 medium violations",
+              "impact": 8
+            },
+            {
+              "name": "1 low violations",
+              "impact": 3
+            },
+            {
+              "name": "2 environmental warning readings",
+              "impact": 20
+            }
+          ],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 12,
+          "mine_id": 1,
+          "mine_name": "Gevra Opencast Mine",
+          "score": 56,
+          "classification": "MEDIUM",
+          "factors": [
+            {
+              "name": "1 critical violations",
+              "impact": 25
+            },
+            {
+              "name": "1 medium violations",
+              "impact": 8
+            },
+            {
+              "name": "1 low violations",
+              "impact": 3
+            },
+            {
+              "name": "3 environmental warning readings",
+              "impact": 20
+            }
+          ],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 23,
+          "mine_id": 1,
+          "mine_name": "Gevra Opencast Mine",
+          "score": 56,
+          "classification": "MEDIUM",
+          "factors": [
+            {
+              "name": "1 critical violations",
+              "impact": 25
+            },
+            {
+              "name": "1 medium violations",
+              "impact": 8
+            },
+            {
+              "name": "1 low violations",
+              "impact": 3
+            },
+            {
+              "name": "3 environmental warning readings",
+              "impact": 20
+            }
+          ],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 2,
+          "mine_id": 2,
+          "mine_name": "Kusmunda Opencast Mine",
+          "score": 10,
+          "classification": "LOW",
+          "factors": [
+            {
+              "name": "1 environmental warning readings",
+              "impact": 10
+            }
+          ],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 13,
+          "mine_id": 2,
+          "mine_name": "Kusmunda Opencast Mine",
+          "score": 10,
+          "classification": "LOW",
+          "factors": [
+            {
+              "name": "1 environmental warning readings",
+              "impact": 10
+            }
+          ],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 24,
+          "mine_id": 2,
+          "mine_name": "Kusmunda Opencast Mine",
+          "score": 10,
+          "classification": "LOW",
+          "factors": [
+            {
+              "name": "1 environmental warning readings",
+              "impact": 10
+            }
+          ],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 5,
+          "mine_id": 5,
+          "mine_name": "Nigahi Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 6,
+          "mine_id": 6,
+          "mine_name": "Dudhichua Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 7,
+          "mine_id": 7,
+          "mine_name": "Lakhanpur Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 8,
+          "mine_id": 8,
+          "mine_name": "Basundhara Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 9,
+          "mine_id": 9,
+          "mine_name": "Bharatpur Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 10,
+          "mine_id": 10,
+          "mine_name": "Talcher Underground Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 11,
+          "mine_id": 11,
+          "mine_name": "QA Test Mine Alpha Renamed",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 14,
+          "mine_id": 3,
+          "mine_name": "Dipka Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 15,
+          "mine_id": 4,
+          "mine_name": "Jayant Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 16,
+          "mine_id": 5,
+          "mine_name": "Nigahi Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 17,
+          "mine_id": 6,
+          "mine_name": "Dudhichua Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 18,
+          "mine_id": 7,
+          "mine_name": "Lakhanpur Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 19,
+          "mine_id": 8,
+          "mine_name": "Basundhara Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 20,
+          "mine_id": 9,
+          "mine_name": "Bharatpur Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 21,
+          "mine_id": 10,
+          "mine_name": "Talcher Underground Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 22,
+          "mine_id": 11,
+          "mine_name": "QA Test Mine Alpha Renamed",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 3,
+          "mine_id": 3,
+          "mine_name": "Dipka Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 4,
+          "mine_id": 4,
+          "mine_name": "Jayant Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 25,
+          "mine_id": 3,
+          "mine_name": "Dipka Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 26,
+          "mine_id": 4,
+          "mine_name": "Jayant Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 27,
+          "mine_id": 5,
+          "mine_name": "Nigahi Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 28,
+          "mine_id": 6,
+          "mine_name": "Dudhichua Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 29,
+          "mine_id": 7,
+          "mine_name": "Lakhanpur Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 30,
+          "mine_id": 8,
+          "mine_name": "Basundhara Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 31,
+          "mine_id": 9,
+          "mine_name": "Bharatpur Opencast Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 32,
+          "mine_id": 10,
+          "mine_name": "Talcher Underground Mine",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 33,
+          "mine_id": 11,
+          "mine_name": "QA Test Mine Alpha Renamed",
+          "score": 0,
+          "classification": "LOW",
+          "factors": [],
+          "computed_at": "2026-09-24T21:10:43+05:30"
+        }
+      ]
+    },
+    "anom_before": {
+      "success": true,
+      "message": "Anomalies fetched",
+      "data": [
+        {
+          "id": 1,
+          "mine_id": 1,
+          "mine_name": "Gevra Opencast Mine",
+          "worker_id": 1,
+          "worker_name": "Santosh Mahato",
+          "worker_code": "W-GEV-101",
+          "anomaly_type": "GEOFENCE_BREACH",
+          "description": "Worker #1 checked in 529634.7m away from Gevra Opencast Mine (perimeter limit: 500m)",
+          "detected_value": 529634.68,
+          "expected_value": 500,
+          "severity": "HIGH",
+          "status": "NEW",
+          "detected_at": "2026-09-24T21:09:46+05:30"
+        }
+      ]
+    },
+    "anom_after": {
+      "success": true,
+      "message": "Anomalies fetched",
+      "data": [
+        {
+          "id": 2,
+          "mine_id": 1,
+          "mine_name": "Gevra Opencast Mine",
+          "anomaly_type": "ENVIRONMENTAL_BREACH",
+          "description": "High pollution detected: AQI=350.0, Dust=400.0 ug/m3, Noise=110.0 dB. Mandatory mitigation required.",
+          "detected_value": 350,
+          "expected_value": 100,
+          "severity": "HIGH",
+          "status": "NEW",
+          "detected_at": "2026-09-24T21:10:43+05:30"
+        },
+        {
+          "id": 1,
+          "mine_id": 1,
+          "mine_name": "Gevra Opencast Mine",
+          "worker_id": 1,
+          "worker_name": "Santosh Mahato",
+          "worker_code": "W-GEV-101",
+          "anomaly_type": "GEOFENCE_BREACH",
+          "description": "Worker #1 checked in 529634.7m away from Gevra Opencast Mine (perimeter limit: 500m)",
+          "detected_value": 529634.68,
+          "expected_value": 500,
+          "severity": "HIGH",
+          "status": "NEW",
+          "detected_at": "2026-09-24T21:09:46+05:30"
+        }
+      ]
+    }
+  }
+}

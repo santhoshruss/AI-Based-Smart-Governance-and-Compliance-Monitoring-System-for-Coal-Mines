@@ -1,0 +1,20 @@
+{
+  "test_id": "D3_assign_violation",
+  "request": {
+    "violation_id": 6,
+    "assigned_to": 2
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "message": "Violation assigned and corrective action created successfully",
+      "data": {
+        "assigned_to": 2,
+        "corrective_action_id": 3,
+        "status": "IN_PROGRESS",
+        "violation_id": 6
+      }
+    }
+  }
+}

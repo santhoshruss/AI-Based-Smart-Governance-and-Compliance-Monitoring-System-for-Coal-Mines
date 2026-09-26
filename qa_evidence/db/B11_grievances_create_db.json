@@ -1,0 +1,17 @@
+[
+  {
+    "id": 4,
+    "worker_id": null,
+    "mine_id": 1,
+    "category": "SAFETY",
+    "description": "Worker helmet buckle is broken and requires immediate replacement.",
+    "status": "RESOLVED",
+    "assigned_to": null,
+    "resolution_notes": "New helmet issued to worker",
+    "escalation_level": 1,
+    "sla_hours": 48,
+    "escalated_at": null,
+    "created_at": "2026-09-24 21:09:41",
+    "updated_at": "2026-09-24 21:09:41"
+  }
+]

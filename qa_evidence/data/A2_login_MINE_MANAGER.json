@@ -1,0 +1,29 @@
+{
+  "test_id": "A2_login_MINE_MANAGER",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:8080/api/auth/login",
+    "body": {
+      "email": "manager@mine.gov",
+      "password": "[REDACTED]"
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "message": "Login successful",
+      "data": {
+        "token": "[REDACTED_JWT_TOKEN]",
+        "user": {
+          "email": "manager@mine.gov",
+          "full_name": "Ramesh Kumar (Mine Mgr)",
+          "id": 2,
+          "role_key": "MINE_MANAGER",
+          "role_name": "Mine Manager",
+          "subsidiary_id": 1
+        }
+      }
+    }
+  }
+}

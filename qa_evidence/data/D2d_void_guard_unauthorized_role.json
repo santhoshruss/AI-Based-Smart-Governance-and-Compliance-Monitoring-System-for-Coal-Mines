@@ -1,0 +1,15 @@
+{
+  "test_id": "D2d_void_guard_unauthorized_role",
+  "request": {
+    "inspection_id": 5,
+    "role": "CORPORATE_MANAGER"
+  },
+  "response": {
+    "status": 403,
+    "body": {
+      "success": false,
+      "message": "You do not have permission to perform this action",
+      "error": "insufficient role privileges"
+    }
+  }
+}

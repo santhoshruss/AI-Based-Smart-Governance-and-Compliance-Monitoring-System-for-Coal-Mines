@@ -1,0 +1,15 @@
+{
+  "test_id": "D9b_dismiss_guard_inspector_403",
+  "request": {
+    "violation_id": 8,
+    "role": "INSPECTOR"
+  },
+  "response": {
+    "status": 403,
+    "body": {
+      "success": false,
+      "message": "You do not have permission to perform this action",
+      "error": "insufficient role privileges"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "test_id": "D9a_dismiss_violation_success",
+  "request": {
+    "violation_id": 8,
+    "reason": "Duplicate false alarm logged due to sensor calibration drift"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "message": "Violation dismissed successfully",
+      "data": {
+        "id": 8,
+        "reason": "Duplicate false alarm logged due to sensor calibration drift",
+        "status": "DISMISSED"
+      }
+    }
+  }
+}

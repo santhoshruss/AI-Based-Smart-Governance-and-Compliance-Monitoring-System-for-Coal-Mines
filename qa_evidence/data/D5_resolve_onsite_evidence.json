@@ -1,0 +1,25 @@
+{
+  "test_id": "D5_resolve_onsite_evidence",
+  "request": {
+    "corrective_action_id": 3,
+    "data": {
+      "resolution_notes": "Conveyor bracket securely welded and tested under full load.",
+      "latitude": "22.3595",
+      "longitude": "82.6892"
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "message": "Corrective action resolved with geotagged evidence and submitted for review",
+      "data": {
+        "distance_to_mine_m": 0,
+        "evidence_path": "uploads/resolution_3_1790264447.png",
+        "id": 3,
+        "off_site_anomaly": false,
+        "status": "SUBMITTED"
+      }
+    }
+  }
+}

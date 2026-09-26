@@ -1,0 +1,15 @@
+{
+  "test_id": "D2b_void_guard_assigned_violation",
+  "request": {
+    "inspection_id": 4,
+    "close_linked_violations": true
+  },
+  "response": {
+    "status": 400,
+    "body": {
+      "success": false,
+      "message": "Cannot void inspection: 1 violation(s) are already assigned or in-progress. Please verify/close those corrective actions first.",
+      "error": "active corrective actions"
+    }
+  }
+}

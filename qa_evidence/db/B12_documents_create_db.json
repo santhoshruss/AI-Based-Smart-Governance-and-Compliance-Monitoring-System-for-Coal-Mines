@@ -1,0 +1,33 @@
+[
+  {
+    "id": 6,
+    "mine_id": null,
+    "contractor_id": null,
+    "document_type": "Safety Clearance",
+    "file_path": "uploads/doc_4_1790264381.png",
+    "certificate_number": "DGMS/SAF/2026/051284",
+    "issue_date": null,
+    "expiry_date": null,
+    "ocr_raw_text": "",
+    "mine_code": "",
+    "inspector_name": "",
+    "inspection_date": null,
+    "compliance_status": "COMPLIANT",
+    "violation_details": "",
+    "risk_level": "",
+    "corrective_action": "",
+    "due_date": null,
+    "regulatory_reference": "",
+    "ocr_data_json": "{\"due_date\": \"2026-10-18\", \"mine_code\": \"MCL-BAS-01\", \"mine_name\": \"Basundhara Opencast Mine\", \"issue_date\": \"2026-09-18\", \"risk_level\": \"LOW\", \"expiry_date\": \"2027-09-17\", \"ocr_raw_text\": \"GOVERNMENTOFINDIA\\nMINISTRY OF COAL\\nDirectorATEGENERAL OF MINES SAFETY\\nSAFETY AUDIT  Compliance Certificate\\nCertificate ID.\\nDGMS/SAF/2026/051284\\nBasundhara Opencast Mine\\nMine Code:\\nMCL-BAS-01\\nSubsidiary.\\nMahanadi Coalfields Limited (MC L)\\nLocation:\\nSundargarh, Odisha\\nDocument Type:\\nSafety Clearance\\nInspection Date:\\n2026-09-18\\nInspecting Officer.\\nS. K Mohapatra (De puty Director of Mines Safety)\\nCompliance Status\\nCOMPLIANT\\nRisk Rating:\\nLOW\\nDue Date:\\n2026-10-18\\nExpiry Date:\\n2027-09-17\\nStatutory Reference:\\nCoal Mines Regulations (CMF 2017, Regulation 124\\n[STATUTORY AUDITCLAUSES]\\n1. AlL Heavy Earth Moving Machine ry (HEMM) ope rators ve rified under CMR 20 17.\\n2. Atmospheric gas methane, and particulate matter leve ls within permissible DGMS limits.\\n3. Eme rge ncy evacuation communication paths and unde rground se nsors tested.\\n4. Mandated pe rsonal protective equipme nt ( PPE) Compliance ce rtified.\\nChief Inspector of Mines\", \"document_type\": \"Safety Clearance\", \"inspector_name\": \"S. K. Mohapatra (Deputy Director of Mines Safety)\", \"inspection_date\": \"2026-09-18\", \"compliance_status\": \"COMPLIANT\", \"corrective_action\": \"d pe rsonal protective equipme nt ( PPE) Compliance ce rtified\", \"violation_details\": \"No critical violations identified\", \"certificate_number\": \"DGMS/SAF/2026/051284\", \"regulatory_reference\": \"Coal Mines Regulations (CMF 2017, Regulation 124\"}",
+    "workflow_status": "PENDING_REVIEW",
+    "uploaded_by": 4,
+    "reviewed_by": null,
+    "reviewed_at": null,
+    "approved_by": null,
+    "approved_at": null,
+    "verified_by": null,
+    "verified_at": null,
+    "status": "VALID",
+    "created_at": "2026-09-24 21:09:44"
+  }
+]

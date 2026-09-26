@@ -1,0 +1,31 @@
+{
+  "test_id": "C7_ocr_certificate",
+  "request": {
+    "file": "ground_truth_dgms_cert.png"
+  },
+  "response": {
+    "status": 201,
+    "body": {
+      "success": true,
+      "message": "Document uploaded and OCR parsed successfully",
+      "data": {
+        "certificate_number": "DGMS/SAF/2026/051284",
+        "compliance_status": "COMPLIANT",
+        "corrective_action": "d pe rsonal protective equipme nt ( PPE) Compliance ce rtified",
+        "document_type": "Safety Clearance",
+        "due_date": "2026-10-18",
+        "expiry_date": "2027-09-17",
+        "id": 7,
+        "inspector_name": "S. K. Mohapatra (Deputy Director of Mines Safety)",
+        "issue_date": "2026-09-18",
+        "mine_code": "MCL-BAS-01",
+        "mine_name": "Basundhara Opencast Mine",
+        "regulatory_reference": "Coal Mines Regulations (CMF 2017, Regulation 124",
+        "risk_level": "LOW",
+        "status": "VALID",
+        "violation_details": "No critical violations identified",
+        "workflow_status": "PENDING_REVIEW"
+      }
+    }
+  }
+}

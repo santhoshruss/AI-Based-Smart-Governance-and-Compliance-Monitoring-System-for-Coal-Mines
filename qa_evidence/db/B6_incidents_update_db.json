@@ -1,0 +1,26 @@
+[
+  {
+    "id": 18,
+    "user_id": 3,
+    "action": "INCIDENT_STATUS_UPDATED",
+    "module": "INCIDENTS",
+    "record_id": "1",
+    "details": "{\"status\": \"UNDER_REVIEW\"}",
+    "ip_address": "::1",
+    "prev_hash": "69e9a9eaf070aac1b9ad0630dc6231a5b8311c31dd144a3ac51d264ea3e1eb6f",
+    "hash": "8af1dd7d2f14a98be01dab1497353db9059e7f2152db7bbbc95a2bb304a155ae",
+    "created_at": "2026-09-24 21:09:38"
+  },
+  {
+    "id": 17,
+    "user_id": 4,
+    "action": "INCIDENT_REPORTED",
+    "module": "INCIDENTS",
+    "record_id": "1",
+    "details": "{\"type\": \"NEAR_MISS\", \"mine_id\": 1, \"severity\": \"MEDIUM\"}",
+    "ip_address": "::1",
+    "prev_hash": "f0f002df93066eb2aa568b958faede107f6d9c3729de4a8d7ab8a9cde116859b",
+    "hash": "69e9a9eaf070aac1b9ad0630dc6231a5b8311c31dd144a3ac51d264ea3e1eb6f",
+    "created_at": "2026-09-24 21:09:38"
+  }
+]

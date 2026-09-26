@@ -1,0 +1,33 @@
+{
+  "test_id": "C9_simulator_modes",
+  "request": {
+    "modes": [
+      "STANDARD",
+      "HIGH_RISK",
+      "EMERGENCY"
+    ]
+  },
+  "response": {
+    "STANDARD": {
+      "success": true,
+      "message": "Simulation mode updated successfully",
+      "data": {
+        "mode": "STANDARD"
+      }
+    },
+    "HIGH_RISK": {
+      "success": true,
+      "message": "Simulation mode updated successfully",
+      "data": {
+        "mode": "HIGH_RISK"
+      }
+    },
+    "EMERGENCY": {
+      "success": true,
+      "message": "Simulation mode updated successfully",
+      "data": {
+        "mode": "EMERGENCY"
+      }
+    }
+  }
+}

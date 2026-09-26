@@ -1,0 +1,27 @@
+{
+  "test_id": "B4_violations_create",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:8080/api/violations",
+    "body": {
+      "mine_id": 1,
+      "category_id": 1,
+      "description": "QA Conveyor belt dust accumulation",
+      "severity": "MEDIUM",
+      "deadline": "2026-10-01"
+    }
+  },
+  "response": {
+    "status": 201,
+    "body": {
+      "success": true,
+      "message": "Violation reported successfully",
+      "data": {
+        "classification": "URGENT",
+        "id": 1,
+        "sla_hours": 12,
+        "violation_code": "VIO-2026-0001"
+      }
+    }
+  }
+}

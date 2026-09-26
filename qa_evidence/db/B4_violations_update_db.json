@@ -1,0 +1,26 @@
+[
+  {
+    "id": 14,
+    "user_id": 2,
+    "action": "VIOLATION_UPDATED",
+    "module": "VIOLATIONS",
+    "record_id": "VIO-2026-0001",
+    "details": "{\"status\": \"IN_PROGRESS\", \"responsible_person\": null}",
+    "ip_address": "::1",
+    "prev_hash": "3036096f81cfbae08d6db6c4fa900d7a43368a5d442263d33a78db12177f5e51",
+    "hash": "ce879ce7eaea6c17899559c7ffeb4da145d654ece01ccccb45b2f85d66780959",
+    "created_at": "2026-09-24 21:09:38"
+  },
+  {
+    "id": 13,
+    "user_id": 2,
+    "action": "VIOLATION_MANUALLY_CREATED",
+    "module": "VIOLATIONS",
+    "record_id": "VIO-2026-0001",
+    "details": "{\"mine_id\": 1, \"severity\": \"MEDIUM\", \"sla_hours\": 12, \"classification\": \"URGENT\"}",
+    "ip_address": "::1",
+    "prev_hash": "33a3fce1b2bdf1b3c1abeb3a59a379a88b94173f1e87fa0cd470536e991fc054",
+    "hash": "3036096f81cfbae08d6db6c4fa900d7a43368a5d442263d33a78db12177f5e51",
+    "created_at": "2026-09-24 21:09:38"
+  }
+]

@@ -1,0 +1,14 @@
+[
+  {
+    "id": 3,
+    "mine_id": 1,
+    "worker_id": null,
+    "anomaly_type": "OFF_SITE_RESOLUTION",
+    "description": "Corrective action #4 resolved 475769.3m away from Gevra Opencast Mine (geofence perimeter: 500m)",
+    "detected_value": "475769.27",
+    "expected_value": "500.00",
+    "severity": "MEDIUM",
+    "status": "NEW",
+    "detected_at": "2026-09-24 21:10:49"
+  }
+]

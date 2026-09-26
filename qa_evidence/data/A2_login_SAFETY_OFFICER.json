@@ -1,0 +1,29 @@
+{
+  "test_id": "A2_login_SAFETY_OFFICER",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:8080/api/auth/login",
+    "body": {
+      "email": "safety@mine.gov",
+      "password": "[REDACTED]"
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "message": "Login successful",
+      "data": {
+        "token": "[REDACTED_JWT_TOKEN]",
+        "user": {
+          "email": "safety@mine.gov",
+          "full_name": "Sunita Sharma (Safety)",
+          "id": 3,
+          "role_key": "SAFETY_OFFICER",
+          "role_name": "Safety Officer",
+          "subsidiary_id": 1
+        }
+      }
+    }
+  }
+}

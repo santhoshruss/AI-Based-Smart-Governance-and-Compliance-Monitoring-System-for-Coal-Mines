@@ -1,0 +1,16 @@
+[
+  {
+    "id": 5,
+    "mine_id": 1,
+    "company_name": "QA Safety Drilling Ltd",
+    "contact_person": "Ramesh Kumar",
+    "phone": "9876500000",
+    "email": "",
+    "contract_type": "DRILLING",
+    "contract_start": "2026-01-01",
+    "contract_end": "2026-12-31",
+    "status": "ACTIVE",
+    "blacklist_reason": null,
+    "created_at": "2026-09-24 21:09:38"
+  }
+]

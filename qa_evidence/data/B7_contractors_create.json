@@ -1,0 +1,27 @@
+{
+  "test_id": "B7_contractors_create",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:8080/api/contractors",
+    "body": {
+      "mine_id": 1,
+      "company_name": "QA Safety Drilling Ltd",
+      "contact_person": "Ramesh Kumar",
+      "phone": "9876543210",
+      "contract_type": "DRILLING",
+      "contract_start": "2026-01-01",
+      "contract_end": "2026-12-31",
+      "status": "ACTIVE"
+    }
+  },
+  "response": {
+    "status": 201,
+    "body": {
+      "success": true,
+      "message": "Contractor created successfully",
+      "data": {
+        "id": 5
+      }
+    }
+  }
+}

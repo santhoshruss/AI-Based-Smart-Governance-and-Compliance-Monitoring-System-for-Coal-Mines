@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "violation_id": 1,
+    "assigned_to": 2,
+    "action_description": "Clean up coal dust from belt",
+    "deadline": "2026-10-02",
+    "submitted_at": null,
+    "verified_by": null,
+    "verified_at": null,
+    "escalation_level": 0,
+    "status": "ASSIGNED",
+    "evidence_photo_path": "uploads/mock.jpg",
+    "resolution_gps_latitude": null,
+    "resolution_gps_longitude": null,
+    "resolution_notes": "Cleaned",
+    "created_at": "2026-09-24 21:09:38",
+    "updated_at": "2026-09-24 21:09:38"
+  }
+]

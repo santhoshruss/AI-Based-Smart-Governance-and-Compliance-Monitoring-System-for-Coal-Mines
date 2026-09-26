@@ -1,0 +1,16 @@
+{
+  "test_id": "A3_rbac_create_user_INSPECTOR",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:8080/api/users",
+    "role": "INSPECTOR"
+  },
+  "response": {
+    "status": 403,
+    "body": {
+      "success": false,
+      "message": "You do not have permission to perform this action",
+      "error": "insufficient role privileges"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "test_id": "B3_inspections_create",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:8080/api/inspections",
+    "data": {
+      "mine_id": "1",
+      "inspection_type": "ROUTINE",
+      "status": "DRAFT",
+      "checklist": "[{\"checklist_item\": \"Check gas sensor\", \"result\": \"PASS\", \"remarks\": \"OK\"}]",
+      "remarks": "Standard routine inspection check"
+    }
+  },
+  "response": {
+    "status": 201,
+    "body": {
+      "success": true,
+      "message": "Inspection created successfully",
+      "data": {
+        "id": 1
+      }
+    }
+  }
+}

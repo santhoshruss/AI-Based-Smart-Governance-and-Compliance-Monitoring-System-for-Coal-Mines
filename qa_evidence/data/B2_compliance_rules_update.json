@@ -1,0 +1,14 @@
+{
+  "test_id": "B2_compliance_rules_update",
+  "request": {
+    "method": "PUT",
+    "url": "http://localhost:8080/api/compliance/rules/11"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "message": "Compliance rule updated successfully"
+    }
+  }
+}

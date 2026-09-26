@@ -1,0 +1,26 @@
+[
+  {
+    "id": 25,
+    "user_id": 2,
+    "action": "GRIEVANCE_RESOLVED",
+    "module": "GRIEVANCES",
+    "record_id": "4",
+    "details": "{\"resolution_notes\": \"New helmet issued to worker\"}",
+    "ip_address": "::1",
+    "prev_hash": "6b24daa1fffb5776aa154fe91d3eedec9f29a10b79127e19ac452c1208c07850",
+    "hash": "35e0d9827870d29a2af76ddac7825c3f9b961fe7d627f2b61d29d237493ac099",
+    "created_at": "2026-09-24 21:09:41"
+  },
+  {
+    "id": 24,
+    "user_id": 4,
+    "action": "GRIEVANCE_SUBMITTED",
+    "module": "GRIEVANCES",
+    "record_id": "4",
+    "details": "{\"mine_id\": 1, \"category\": \"SAFETY\", \"sla_hours\": 48, \"worker_id\": null, \"classification\": \"ROUTINE\"}",
+    "ip_address": "::1",
+    "prev_hash": "74c75f60379ce14e8626c87509bcadcdc4a59802d6a14bb0ab55cb1137cd5c8b",
+    "hash": "6b24daa1fffb5776aa154fe91d3eedec9f29a10b79127e19ac452c1208c07850",
+    "created_at": "2026-09-24 21:09:41"
+  }
+]

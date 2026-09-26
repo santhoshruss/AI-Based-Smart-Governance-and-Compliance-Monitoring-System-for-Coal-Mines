@@ -1,0 +1,30 @@
+{
+  "test_id": "C4_gemini_analysis",
+  "request": {
+    "payload": {
+      "mine_id": 1,
+      "inspection_type": "SAFETY_AUDIT",
+      "observation": "Excessive black dust accumulation around conveyor head pulley with visible spark discharge risks and high heat build up."
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "message": "Draft inspection analyzed",
+      "data": {
+        "category": "Ventilation & Mine Gas Safety",
+        "confidence": 0.91,
+        "model_name": "DGMS Statutory Rule Engine (CMR 2017 compliant)",
+        "reasoning": "Statutory evaluation under CMR 2017, Regulation 153 (Ventilation & Inflammable Gas Monitoring) classifies this observation as MEDIUM severity with an evaluated risk score of 55/100. Immediate operational risks involve potential hazard escalation affecting workforce safety and machinery operational continuity.",
+        "recommended_action": "1. Issue standard statutory compliance notice to site supervisor.\n2. Complete scheduled maintenance/remediation within 7 business days.\n3. Submit photographic compliance proof for safety officer verification.",
+        "recurring_issue": false,
+        "risk_level": "MEDIUM",
+        "risk_score": 55,
+        "severity": "MEDIUM",
+        "summary": "Identified ventilation & mine gas safety non-conformance during SAFETY_AUDIT at Gevra Opencast Mine: Excessive black dust accumulation around conveyor head pulley with visible spark discharge risks and high heat build up.",
+        "urgency": "NEEDS_ATTENTION"
+      }
+    }
+  }
+}

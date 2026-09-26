@@ -1,0 +1,25 @@
+{
+  "test_id": "D1b_void_with_autoclose",
+  "request": {
+    "inspection_id": 3,
+    "close_linked_violations": true
+  },
+  "response": {
+    "create_res": {
+      "success": true,
+      "message": "Inspection created successfully",
+      "data": {
+        "id": 3
+      }
+    },
+    "void_res": {
+      "success": true,
+      "message": "Inspection voided successfully",
+      "data": {
+        "id": 3,
+        "status": "VOIDED",
+        "void_reason": "Test inspection conducted on wrong shaft sector"
+      }
+    }
+  }
+}

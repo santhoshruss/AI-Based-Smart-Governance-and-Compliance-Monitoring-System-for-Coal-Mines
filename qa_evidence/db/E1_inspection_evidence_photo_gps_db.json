@@ -1,0 +1,32 @@
+{
+  "inspection": [
+    {
+      "id": 6,
+      "mine_id": 1,
+      "inspection_type": "STATUTORY",
+      "inspector_id": 4,
+      "inspection_date": "2026-09-24",
+      "inspection_time": "21:10:55",
+      "gps_latitude": "22.359500",
+      "gps_longitude": "82.689200",
+      "remarks": "",
+      "status": "DRAFT",
+      "void_reason": null,
+      "voided_by": null,
+      "voided_at": null,
+      "created_at": "2026-09-24 21:10:55",
+      "updated_at": "2026-09-24 21:10:55"
+    }
+  ],
+  "observations": [
+    {
+      "id": 1,
+      "inspection_id": 6,
+      "category_id": null,
+      "observation": "Rock bolt anchor loose at 50m mark from portal entrance",
+      "severity": "LOW",
+      "evidence_path": "uploads/evidence_6_1790264455.png",
+      "created_at": "2026-09-24 21:10:55"
+    }
+  ]
+}

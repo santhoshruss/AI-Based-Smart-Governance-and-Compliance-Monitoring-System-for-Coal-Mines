@@ -1,0 +1,15 @@
+{
+  "test_id": "D2a_void_guard_open_violations",
+  "request": {
+    "inspection_id": 4,
+    "close_linked_violations": false
+  },
+  "response": {
+    "status": 400,
+    "body": {
+      "success": false,
+      "message": "Cannot void inspection: 1 active violation(s) reference this inspection. Please resolve or reassign these violations first.",
+      "error": "active violations linked"
+    }
+  }
+}

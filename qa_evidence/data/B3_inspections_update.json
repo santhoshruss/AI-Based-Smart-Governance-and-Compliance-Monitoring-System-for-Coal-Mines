@@ -1,0 +1,14 @@
+{
+  "test_id": "B3_inspections_update",
+  "request": {
+    "method": "PUT",
+    "url": "http://localhost:8080/api/inspections/1/status"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "message": "Inspection status updated successfully"
+    }
+  }
+}

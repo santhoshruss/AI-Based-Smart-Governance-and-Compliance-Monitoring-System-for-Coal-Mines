@@ -1,0 +1,13 @@
+{
+  "observations": [
+    {
+      "id": 2,
+      "inspection_id": 7,
+      "category_id": null,
+      "observation": "(Photo evidence only)",
+      "severity": "LOW",
+      "evidence_path": "uploads/evidence_7_1790264455.png",
+      "created_at": "2026-09-24 21:10:55"
+    }
+  ]
+}

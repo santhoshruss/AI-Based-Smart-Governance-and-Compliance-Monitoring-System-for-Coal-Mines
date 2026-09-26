@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "mine_id": 1,
+    "worker_id": 1,
+    "record_date": "2026-09-24",
+    "status": "PRESENT",
+    "shift": "SHIFT_1",
+    "overtime_hours": "0.00",
+    "present_count": null,
+    "total_count": null,
+    "marked_by": 3,
+    "checkin_lat": null,
+    "checkin_lng": null,
+    "distance_from_mine_m": null,
+    "is_mock_location": 0,
+    "device_uptime_ms": null,
+    "client_reported_time": null,
+    "tamper_flag": 0,
+    "created_at": "2026-09-24 21:09:32"
+  },
+  {
+    "id": 7,
+    "mine_id": 1,
+    "worker_id": 1,
+    "record_date": "2026-09-24",
+    "status": "PRESENT",
+    "shift": "GENERAL",
+    "overtime_hours": "0.00",
+    "present_count": null,
+    "total_count": null,
+    "marked_by": 2,
+    "checkin_lat": null,
+    "checkin_lng": null,
+    "distance_from_mine_m": null,
+    "is_mock_location": 0,
+    "device_uptime_ms": null,
+    "client_reported_time": null,
+    "tamper_flag": 0,
+    "created_at": "2026-09-24 21:09:38"
+  }
+]

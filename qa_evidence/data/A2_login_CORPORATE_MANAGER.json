@@ -1,0 +1,29 @@
+{
+  "test_id": "A2_login_CORPORATE_MANAGER",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:8080/api/auth/login",
+    "body": {
+      "email": "corporate@coal.gov",
+      "password": "[REDACTED]"
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "message": "Login successful",
+      "data": {
+        "token": "[REDACTED_JWT_TOKEN]",
+        "user": {
+          "email": "corporate@coal.gov",
+          "full_name": "Priya Nair (Corporate)",
+          "id": 5,
+          "role_key": "CORPORATE_MANAGER",
+          "role_name": "Corporate Manager",
+          "subsidiary_id": null
+        }
+      }
+    }
+  }
+}

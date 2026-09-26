@@ -1,0 +1,26 @@
+[
+  {
+    "id": 12,
+    "user_id": 3,
+    "action": "INSPECTION_STATUS_UPDATED",
+    "module": "INSPECTIONS",
+    "record_id": "1",
+    "details": "{\"status\": \"SUBMITTED\"}",
+    "ip_address": "::1",
+    "prev_hash": "156a751d76f2ff8d5b5ee13b5363895c930b98e91c2b8b69f0fd7794c68c992f",
+    "hash": "33a3fce1b2bdf1b3c1abeb3a59a379a88b94173f1e87fa0cd470536e991fc054",
+    "created_at": "2026-09-24 21:09:35"
+  },
+  {
+    "id": 11,
+    "user_id": 4,
+    "action": "INSPECTION_CREATED",
+    "module": "INSPECTIONS",
+    "record_id": "1",
+    "details": "{\"status\": \"DRAFT\", \"mine_id\": 1}",
+    "ip_address": "::1",
+    "prev_hash": "90625f56b17f69a50f8b6ae2459be7b9e8686730b7bd910274aaf0afa642a36e",
+    "hash": "156a751d76f2ff8d5b5ee13b5363895c930b98e91c2b8b69f0fd7794c68c992f",
+    "created_at": "2026-09-24 21:09:35"
+  }
+]

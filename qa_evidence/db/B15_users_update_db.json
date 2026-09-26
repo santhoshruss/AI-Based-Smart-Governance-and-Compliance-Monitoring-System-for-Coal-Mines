@@ -1,0 +1,26 @@
+[
+  {
+    "id": 30,
+    "user_id": 1,
+    "action": "USER_UPDATED",
+    "module": "USERS",
+    "record_id": "7",
+    "details": "{\"email\": \"qa_created_user@mine.gov\", \"status\": \"ACTIVE\"}",
+    "ip_address": "::1",
+    "prev_hash": "8fef47fbe0356e63c097ec191ae429e8fd6464ee9294be8dda8ef84a0cb5a6cc",
+    "hash": "228d37ce9d1f5341b511558645c9eb7e692f47c501ae5906549ac40910769b01",
+    "created_at": "2026-09-24 21:09:45"
+  },
+  {
+    "id": 29,
+    "user_id": 1,
+    "action": "USER_CREATED",
+    "module": "USERS",
+    "record_id": "7",
+    "details": "{\"email\": \"qa_created_user@mine.gov\", \"role_id\": 4, \"full_name\": \"QA Worker Test\"}",
+    "ip_address": "::1",
+    "prev_hash": "dee416e5f46ebf4b69847e5cad412297cae57b43fb5280b427b3ce8abf64d43c",
+    "hash": "8fef47fbe0356e63c097ec191ae429e8fd6464ee9294be8dda8ef84a0cb5a6cc",
+    "created_at": "2026-09-24 21:09:44"
+  }
+]

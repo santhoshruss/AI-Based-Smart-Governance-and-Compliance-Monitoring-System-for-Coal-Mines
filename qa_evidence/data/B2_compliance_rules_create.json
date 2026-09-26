@@ -1,0 +1,26 @@
+{
+  "test_id": "B2_compliance_rules_create",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:8080/api/compliance/rules",
+    "body": {
+      "rule_code": "CMR-QA-999",
+      "title": "QA Methane Inspection Rule",
+      "category_id": 1,
+      "frequency": "DAILY",
+      "severity": "HIGH",
+      "due_period_days": 1,
+      "status": "ACTIVE"
+    }
+  },
+  "response": {
+    "status": 201,
+    "body": {
+      "success": true,
+      "message": "Compliance rule created successfully",
+      "data": {
+        "id": 11
+      }
+    }
+  }
+}

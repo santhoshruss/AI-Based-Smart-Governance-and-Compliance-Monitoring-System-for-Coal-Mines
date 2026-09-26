@@ -1,0 +1,25 @@
+{
+  "test_id": "B11_grievances_create",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:8080/api/grievances",
+    "body": {
+      "mine_id": 1,
+      "category": "SAFETY",
+      "subject": "QA Defective Safety Helmet",
+      "description": "Worker helmet buckle is broken and requires immediate replacement."
+    }
+  },
+  "response": {
+    "status": 201,
+    "body": {
+      "success": true,
+      "message": "Grievance submitted successfully",
+      "data": {
+        "classification": "ROUTINE",
+        "id": 4,
+        "sla_hours": 48
+      }
+    }
+  }
+}

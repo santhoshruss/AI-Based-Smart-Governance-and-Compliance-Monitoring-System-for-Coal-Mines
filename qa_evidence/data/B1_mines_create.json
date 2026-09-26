@@ -1,0 +1,29 @@
+{
+  "test_id": "B1_mines_create",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:8080/api/mines",
+    "body": {
+      "mine_name": "QA Test Mine Alpha",
+      "mine_code": "MINE-QA-01",
+      "subsidiary_id": 1,
+      "state": "West Bengal",
+      "district": "Paschim Bardhaman",
+      "mine_type": "UNDERGROUND",
+      "latitude": 23.7,
+      "longitude": 86.9,
+      "production_capacity": 50000.0,
+      "status": "ACTIVE"
+    }
+  },
+  "response": {
+    "status": 201,
+    "body": {
+      "success": true,
+      "message": "Mine created successfully",
+      "data": {
+        "id": 11
+      }
+    }
+  }
+}

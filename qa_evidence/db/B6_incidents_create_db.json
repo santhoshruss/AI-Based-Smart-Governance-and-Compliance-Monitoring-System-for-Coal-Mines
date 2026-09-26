@@ -1,0 +1,13 @@
+[
+  {
+    "id": 1,
+    "mine_id": 1,
+    "incident_type": "NEAR_MISS",
+    "description": "Near miss: loose cable identified",
+    "severity": "MEDIUM",
+    "reported_by": 4,
+    "incident_date": "2026-09-24 21:09:38",
+    "status": "UNDER_REVIEW",
+    "created_at": "2026-09-24 21:09:38"
+  }
+]

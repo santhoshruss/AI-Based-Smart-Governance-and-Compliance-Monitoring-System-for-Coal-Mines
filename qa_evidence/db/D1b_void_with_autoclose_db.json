@@ -1,0 +1,56 @@
+{
+  "inspection": [
+    {
+      "id": 3,
+      "mine_id": 1,
+      "inspection_type": "SAFETY_AUDIT",
+      "inspector_id": 4,
+      "inspection_date": "2026-09-24",
+      "inspection_time": "21:10:43",
+      "gps_latitude": "0.000000",
+      "gps_longitude": "0.000000",
+      "remarks": "",
+      "status": "VOIDED",
+      "void_reason": "Test inspection conducted on wrong shaft sector",
+      "voided_by": 4,
+      "voided_at": "2026-09-24 21:10:43",
+      "created_at": "2026-09-24 21:10:43",
+      "updated_at": "2026-09-24 21:10:43"
+    }
+  ],
+  "violations_after": [
+    {
+      "id": 4,
+      "violation_code": "VIO-2026-0004",
+      "mine_id": 1,
+      "inspection_id": 3,
+      "category_id": 1,
+      "description": "Failed checklist item: Emergency stop button test. Remarks: Switch jammed",
+      "severity": "HIGH",
+      "evidence_path": "",
+      "reported_by": 4,
+      "responsible_person": null,
+      "deadline": "2026-09-27",
+      "status": "CLOSED",
+      "escalation_level": 1,
+      "sla_hours": 2,
+      "escalated_at": null,
+      "created_at": "2026-09-24 21:10:43",
+      "updated_at": "2026-09-24 21:10:43"
+    }
+  ],
+  "audit_log": [
+    {
+      "id": 46,
+      "user_id": 4,
+      "action": "VIOLATION_CLOSED_BY_INSPECTION_VOID",
+      "module": "VIOLATIONS",
+      "record_id": "VIO-2026-0004",
+      "details": "{\"reason\": \"Test inspection conducted on wrong shaft sector\", \"inspection_id\": 3}",
+      "ip_address": "::1",
+      "prev_hash": "ddde9dc78833ef71fb318c7fc568311632ffcf3077c851f6d89e57b3a50d25e3",
+      "hash": "44fa3e89dc28663a1b6f0dc6dfdba7d77326821f50fe799b39e54e62d0900f5d",
+      "created_at": "2026-09-24 21:10:43"
+    }
+  ]
+}

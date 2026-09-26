@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "mine_id": 1,
+    "worker_id": 1,
+    "anomaly_type": "GEOFENCE_BREACH",
+    "description": "Worker #1 checked in 529634.7m away from Gevra Opencast Mine (perimeter limit: 500m)",
+    "detected_value": "529634.68",
+    "expected_value": "500.00",
+    "severity": "HIGH",
+    "status": "NEW",
+    "detected_at": "2026-09-24 21:09:46"
+  }
+]

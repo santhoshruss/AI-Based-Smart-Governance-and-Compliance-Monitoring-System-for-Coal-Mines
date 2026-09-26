@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "incident_id": 2,
+    "node_id": 1,
+    "hop_number": 1,
+    "latency_ms": 84,
+    "signal_strength_pct": "98.00",
+    "relayed_at": "2026-09-24 21:10:44"
+  },
+  {
+    "id": 2,
+    "incident_id": 2,
+    "node_id": 2,
+    "hop_number": 2,
+    "latency_ms": 84,
+    "signal_strength_pct": "90.50",
+    "relayed_at": "2026-09-24 21:10:44"
+  },
+  {
+    "id": 3,
+    "incident_id": 2,
+    "node_id": 4,
+    "hop_number": 3,
+    "latency_ms": 84,
+    "signal_strength_pct": "83.00",
+    "relayed_at": "2026-09-24 21:10:44"
+  },
+  {
+    "id": 4,
+    "incident_id": 2,
+    "node_id": 5,
+    "hop_number": 4,
+    "latency_ms": 84,
+    "signal_strength_pct": "75.50",
+    "relayed_at": "2026-09-24 21:10:44"
+  },
+  {
+    "id": 5,
+    "incident_id": 2,
+    "node_id": 6,
+    "hop_number": 5,
+    "latency_ms": 84,
+    "signal_strength_pct": "68.00",
+    "relayed_at": "2026-09-24 21:10:44"
+  }
+]

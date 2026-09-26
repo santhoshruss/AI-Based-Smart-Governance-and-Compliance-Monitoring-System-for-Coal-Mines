@@ -1,0 +1,15 @@
+{
+  "test_id": "D2c_void_guard_short_reason",
+  "request": {
+    "inspection_id": 5,
+    "reason": "short"
+  },
+  "response": {
+    "status": 400,
+    "body": {
+      "success": false,
+      "message": "Void reason must be at least 10 characters",
+      "error": "reason too short"
+    }
+  }
+}

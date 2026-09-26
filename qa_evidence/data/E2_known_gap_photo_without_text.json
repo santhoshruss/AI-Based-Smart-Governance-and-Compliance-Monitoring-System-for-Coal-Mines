@@ -1,0 +1,24 @@
+{
+  "test_id": "E2_known_gap_photo_without_text",
+  "request": {
+    "data": {
+      "mine_id": "1",
+      "inspection_type": "STATUTORY",
+      "status": "DRAFT",
+      "gps_latitude": "22.3595",
+      "gps_longitude": "82.6892",
+      "checklist": "[{\"checklist_item\": \"Ventilation air velocity\", \"result\": \"PASS\"}]",
+      "observation": ""
+    }
+  },
+  "response": {
+    "status": 201,
+    "body": {
+      "success": true,
+      "message": "Inspection created successfully",
+      "data": {
+        "id": 7
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "test_id": "D8_verify_closure",
+  "request": {
+    "corrective_action_id": 3
+  },
+  "response": {
+    "verify_res": {
+      "success": true,
+      "message": "Verification processed successfully"
+    },
+    "skip_unsubmitted_res": {
+      "success": false,
+      "message": "Corrective action is not submitted for review",
+      "error": "invalid state"
+    }
+  }
+}

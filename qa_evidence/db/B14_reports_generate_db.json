@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "report_type": "GOVERNANCE_SUMMARY",
+    "generated_by": 2,
+    "mine_id": 1,
+    "file_path": null,
+    "format": "CSV",
+    "parameters_json": "{\"mine_id\": 1, \"mine_name\": \"Gevra Opencast Mine\"}",
+    "created_at": "2026-09-24 21:09:44"
+  }
+]

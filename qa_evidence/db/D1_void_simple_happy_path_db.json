@@ -1,0 +1,59 @@
+{
+  "inspection": [
+    {
+      "id": 2,
+      "mine_id": 1,
+      "inspection_type": "ROUTINE",
+      "inspector_id": 4,
+      "inspection_date": "2026-09-24",
+      "inspection_time": "21:10:43",
+      "gps_latitude": "0.000000",
+      "gps_longitude": "0.000000",
+      "remarks": "",
+      "status": "VOIDED",
+      "void_reason": "Created by mistake during testing routine",
+      "voided_by": 4,
+      "voided_at": "2026-09-24 21:10:43",
+      "created_at": "2026-09-24 21:10:43",
+      "updated_at": "2026-09-24 21:10:43"
+    }
+  ],
+  "audit_log": [
+    {
+      "id": 43,
+      "user_id": 4,
+      "action": "INSPECTION_VOIDED",
+      "module": "INSPECTIONS",
+      "record_id": "2",
+      "details": "{\"reason\": \"Created by mistake during testing routine\", \"mine_id\": 1, \"mine_name\": \"Gevra Opencast Mine\", \"voided_by\": 4, \"previous_status\": \"DRAFT\"}",
+      "ip_address": "::1",
+      "prev_hash": "915f4af65b2badbd393d982f22eb99d31fbaf67993c2a32c50484e348376d2fd",
+      "hash": "a4b9838fe787957d4657850159ffc764191997052f8e58fd464f9d629deb79c2",
+      "created_at": "2026-09-24 21:10:43"
+    },
+    {
+      "id": 42,
+      "user_id": 4,
+      "action": "INSPECTION_CREATED",
+      "module": "INSPECTIONS",
+      "record_id": "2",
+      "details": "{\"status\": \"DRAFT\", \"mine_id\": 1}",
+      "ip_address": "::1",
+      "prev_hash": "fd3c5b5b09a54aebac384d696ac3c4e463860dedee1fc51e5069cc8cbe51c42a",
+      "hash": "915f4af65b2badbd393d982f22eb99d31fbaf67993c2a32c50484e348376d2fd",
+      "created_at": "2026-09-24 21:10:43"
+    }
+  ],
+  "notifications": [
+    {
+      "id": 13,
+      "recipient_id": 2,
+      "title": "Inspection #2 Voided \u2014 Gevra Opencast Mine",
+      "message": "Inspection #2 was marked as VOIDED. Reason: Created by mistake during testing routine",
+      "severity": "WARNING",
+      "type": "INSPECTION",
+      "is_read": 0,
+      "created_at": "2026-09-24 21:10:43"
+    }
+  ]
+}

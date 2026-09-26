@@ -1,0 +1,25 @@
+{
+  "test_id": "B9_production_create",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:8080/api/operational",
+    "body": {
+      "mine_id": 1,
+      "record_date": "2026-09-24",
+      "production_tonnes": 450.5,
+      "expected_production": 460.0,
+      "equipment_health_pct": 94.0,
+      "attendance_pct": 96.0
+    }
+  },
+  "response": {
+    "status": 201,
+    "body": {
+      "success": true,
+      "message": "Operational data logged successfully",
+      "data": {
+        "id": 15
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "id": 27,
+    "user_id": 3,
+    "action": "DOCUMENT_UPDATED",
+    "module": "DOCUMENTS",
+    "record_id": "6",
+    "details": "{\"document_type\": \"Safety Clearance\", \"certificate_number\": \"DGMS/SAF/2026/051284\"}",
+    "ip_address": "::1",
+    "prev_hash": "8b124fe78f97bde0a4c9ee97dc38d651878ba9ac94a54d70f64496e9ba5ccc78",
+    "hash": "f7d613641cf020d1d88527e42fa952c4f146fa867602ffd25efb1d268d430420",
+    "created_at": "2026-09-24 21:09:44"
+  },
+  {
+    "id": 26,
+    "user_id": 4,
+    "action": "DOCUMENT_UPLOADED",
+    "module": "DOCUMENTS",
+    "record_id": "6",
+    "details": "{\"mine_name\": \"Basundhara Opencast Mine\", \"risk_level\": \"LOW\", \"document_type\": \"Safety Clearance\", \"compliance_status\": \"COMPLIANT\", \"certificate_number\": \"DGMS/SAF/2026/051284\"}",
+    "ip_address": "::1",
+    "prev_hash": "35e0d9827870d29a2af76ddac7825c3f9b961fe7d627f2b61d29d237493ac099",
+    "hash": "8b124fe78f97bde0a4c9ee97dc38d651878ba9ac94a54d70f64496e9ba5ccc78",
+    "created_at": "2026-09-24 21:09:44"
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "test_id": "B5_corrective_actions_update",
+  "request": {
+    "method": "PUT",
+    "url": "http://localhost:8080/api/corrective-actions/1/verify"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "message": "Verification processed successfully"
+    }
+  }
+}

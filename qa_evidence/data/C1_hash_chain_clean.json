@@ -1,0 +1,23 @@
+{
+  "test_id": "C1_hash_chain_clean",
+  "request": {
+    "method": "GET",
+    "url": "http://localhost:8080/api/audit/verify"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "message": "Audit log chain verification completed",
+      "data": {
+        "total_logs": 30,
+        "verified_logs": 30,
+        "tampered_logs": 0,
+        "is_chain_intact": true,
+        "genesis_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "latest_hash": "228d37ce9d1f5341b511558645c9eb7e692f47c501ae5906549ac40910769b01",
+        "verified_at": "2026-09-24T21:09:45.0874346+05:30"
+      }
+    }
+  }
+}

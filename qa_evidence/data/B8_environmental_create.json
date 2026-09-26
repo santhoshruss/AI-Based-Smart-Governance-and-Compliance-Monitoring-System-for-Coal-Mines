@@ -1,0 +1,25 @@
+{
+  "test_id": "B8_environmental_create",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:8080/api/environmental",
+    "body": {
+      "mine_id": 1,
+      "aqi": 75.0,
+      "water_quality_index": 8.0,
+      "noise_level_db": 68.0,
+      "dust_level": 45.0,
+      "record_date": "2026-09-24"
+    }
+  },
+  "response": {
+    "status": 201,
+    "body": {
+      "success": true,
+      "message": "Environmental reading logged successfully",
+      "data": {
+        "id": 15
+      }
+    }
+  }
+}

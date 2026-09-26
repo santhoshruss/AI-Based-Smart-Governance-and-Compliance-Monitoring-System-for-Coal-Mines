@@ -1,0 +1,23 @@
+{
+  "test_id": "B5_corrective_actions_create",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:8080/api/corrective-actions",
+    "body": {
+      "violation_id": 1,
+      "assigned_to": 2,
+      "action_description": "Clean up coal dust from belt",
+      "deadline": "2026-10-02"
+    }
+  },
+  "response": {
+    "status": 201,
+    "body": {
+      "success": true,
+      "message": "Corrective action assigned successfully",
+      "data": {
+        "id": 1
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "test_id": "E1_inspection_evidence_photo_gps",
+  "request": {
+    "data": {
+      "mine_id": "1",
+      "inspection_type": "STATUTORY",
+      "status": "DRAFT",
+      "gps_latitude": "22.3595",
+      "gps_longitude": "82.6892",
+      "checklist": "[{\"checklist_item\": \"Haulage track clearance\", \"result\": \"PASS\", \"remarks\": \"OK\"}]",
+      "observation": "Rock bolt anchor loose at 50m mark from portal entrance"
+    }
+  },
+  "response": {
+    "status": 201,
+    "body": {
+      "success": true,
+      "message": "Inspection created successfully",
+      "data": {
+        "id": 6
+      }
+    }
+  }
+}

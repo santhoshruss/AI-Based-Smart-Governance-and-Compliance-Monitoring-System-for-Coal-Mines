@@ -1,0 +1,14 @@
+{
+  "test_id": "A1_health_ai",
+  "request": {
+    "method": "GET",
+    "url": "http://localhost:5000/health"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "message": "AI service is running",
+      "success": true
+    }
+  }
+}

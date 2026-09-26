@@ -1,0 +1,14 @@
+{
+  "test_id": "B6_incidents_update",
+  "request": {
+    "method": "PUT",
+    "url": "http://localhost:8080/api/incidents/1/status"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "message": "Incident status updated successfully"
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "corrective_action": [
+    {
+      "id": 3,
+      "violation_id": 6,
+      "assigned_to": 2,
+      "action_description": "Weld and reinforce conveyor roller mounting brackets",
+      "deadline": "2026-10-08",
+      "submitted_at": "2026-09-24 21:10:47",
+      "verified_by": 3,
+      "verified_at": "2026-09-24 21:10:49",
+      "escalation_level": 0,
+      "status": "VERIFIED",
+      "evidence_photo_path": "uploads/resolution_3_1790264447.png",
+      "resolution_gps_latitude": "22.359500",
+      "resolution_gps_longitude": "82.689200",
+      "resolution_notes": "Conveyor bracket securely welded and tested under full load.",
+      "created_at": "2026-09-24 21:10:47",
+      "updated_at": "2026-09-24 21:10:49"
+    }
+  ],
+  "violation": [
+    {
+      "id": 6,
+      "violation_code": "VIO-2026-0006",
+      "mine_id": 1,
+      "inspection_id": null,
+      "category_id": 2,
+      "description": "Conveyor roller loose bracket requiring re-welding",
+      "severity": "HIGH",
+      "evidence_path": null,
+      "reported_by": 2,
+      "responsible_person": 2,
+      "deadline": "2026-10-08",
+      "status": "RESOLVED",
+      "escalation_level": 1,
+      "sla_hours": 12,
+      "escalated_at": null,
+      "created_at": "2026-09-24 21:10:47",
+      "updated_at": "2026-09-24 21:10:49"
+    }
+  ]
+}

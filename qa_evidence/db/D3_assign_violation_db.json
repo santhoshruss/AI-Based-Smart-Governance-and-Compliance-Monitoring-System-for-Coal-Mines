@@ -1,0 +1,69 @@
+{
+  "violation": [
+    {
+      "id": 6,
+      "violation_code": "VIO-2026-0006",
+      "mine_id": 1,
+      "inspection_id": null,
+      "category_id": 2,
+      "description": "Conveyor roller loose bracket requiring re-welding",
+      "severity": "HIGH",
+      "evidence_path": null,
+      "reported_by": 2,
+      "responsible_person": 2,
+      "deadline": "2026-10-08",
+      "status": "IN_PROGRESS",
+      "escalation_level": 1,
+      "sla_hours": 12,
+      "escalated_at": null,
+      "created_at": "2026-09-24 21:10:47",
+      "updated_at": "2026-09-24 21:10:47"
+    }
+  ],
+  "corrective_action": [
+    {
+      "id": 3,
+      "violation_id": 6,
+      "assigned_to": 2,
+      "action_description": "Weld and reinforce conveyor roller mounting brackets",
+      "deadline": "2026-10-08",
+      "submitted_at": null,
+      "verified_by": null,
+      "verified_at": null,
+      "escalation_level": 0,
+      "status": "ASSIGNED",
+      "evidence_photo_path": null,
+      "resolution_gps_latitude": null,
+      "resolution_gps_longitude": null,
+      "resolution_notes": null,
+      "created_at": "2026-09-24 21:10:47",
+      "updated_at": "2026-09-24 21:10:47"
+    }
+  ],
+  "audit_log": [
+    {
+      "id": 53,
+      "user_id": 2,
+      "action": "VIOLATION_ASSIGNED",
+      "module": "VIOLATIONS",
+      "record_id": "VIO-2026-0006",
+      "details": "{\"deadline\": \"2026-10-08\", \"assigned_to\": 2, \"violation_id\": 6, \"assignee_name\": \"Ramesh Kumar (Mine Mgr)\", \"action_description\": \"Weld and reinforce conveyor roller mounting brackets\", \"corrective_action_id\": 3}",
+      "ip_address": "::1",
+      "prev_hash": "7f3bac620a77383cb17d5fc3d7fc5d749f7428d313350a33c028e618ed10e959",
+      "hash": "9ef6fc725dc1231c0df6fb658b55196cde775996cefffb9acf3b27ffffc6d7db",
+      "created_at": "2026-09-24 21:10:47"
+    }
+  ],
+  "notification": [
+    {
+      "id": 16,
+      "recipient_id": 2,
+      "title": "Corrective Action Assigned To You",
+      "message": "You have been assigned to resolve Violation VIO-2026-0006 (Deadline: 2026-10-08): Weld and reinforce conveyor roller mounting brackets",
+      "severity": "INFO",
+      "type": "CORRECTIVE_ACTION",
+      "is_read": 0,
+      "created_at": "2026-09-24 21:10:47"
+    }
+  ]
+}

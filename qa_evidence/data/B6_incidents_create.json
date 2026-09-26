@@ -1,0 +1,24 @@
+{
+  "test_id": "B6_incidents_create",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:8080/api/incidents",
+    "body": {
+      "mine_id": 1,
+      "incident_type": "NEAR_MISS",
+      "severity": "MEDIUM",
+      "description": "Near miss: loose cable identified",
+      "incident_date": "2026-09-24T10:00:00Z"
+    }
+  },
+  "response": {
+    "status": 201,
+    "body": {
+      "success": true,
+      "message": "Incident report submitted successfully",
+      "data": {
+        "id": 1
+      }
+    }
+  }
+}

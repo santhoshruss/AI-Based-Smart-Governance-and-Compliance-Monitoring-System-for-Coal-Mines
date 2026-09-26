@@ -1,0 +1,14 @@
+{
+  "test_id": "B7_contractors_update",
+  "request": {
+    "method": "PUT",
+    "url": "http://localhost:8080/api/contractors/5"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "message": "Contractor updated successfully"
+    }
+  }
+}

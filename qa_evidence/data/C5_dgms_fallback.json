@@ -1,0 +1,25 @@
+{
+  "test_id": "C5_dgms_fallback",
+  "request": {
+    "observation": "Poor ventilation and high CO readings"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "analysis": {
+        "category": "Ventilation & Mine Gas Safety",
+        "confidence": 0.91,
+        "model_name": "DGMS Statutory Rule Engine (CMR 2017 compliant)",
+        "reasoning": "Statutory evaluation under CMR 2017, Regulation 153 (Ventilation & Inflammable Gas Monitoring) classifies this observation as MEDIUM severity with an evaluated risk score of 55/100. Immediate operational risks involve potential hazard escalation affecting workforce safety and machinery operational continuity.",
+        "recommended_action": "1. Issue standard statutory compliance notice to site supervisor.\n2. Complete scheduled maintenance/remediation within 7 business days.\n3. Submit photographic compliance proof for safety officer verification.",
+        "recurring_issue": false,
+        "risk_level": "MEDIUM",
+        "risk_score": 55,
+        "severity": "MEDIUM",
+        "summary": "Identified ventilation & mine gas safety non-conformance during Safety Audit at Gevra OC Mine: Poor ventilation and high CO readings in incline shaft 2.",
+        "urgency": "NEEDS_ATTENTION"
+      },
+      "success": true
+    }
+  }
+}

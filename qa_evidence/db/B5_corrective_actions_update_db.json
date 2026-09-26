@@ -1,0 +1,26 @@
+[
+  {
+    "id": 16,
+    "user_id": 3,
+    "action": "CORRECTIVE_ACTION_REJECTED",
+    "module": "CORRECTIVE_ACTIONS",
+    "record_id": "1",
+    "details": "{\"remarks\": \"Verified clean by Safety Officer\"}",
+    "ip_address": "::1",
+    "prev_hash": "d5a799e6f06fcf49a5aaf38bd5cebc03c8472b8e5cdf20e0dfd95f3e28834180",
+    "hash": "f0f002df93066eb2aa568b958faede107f6d9c3729de4a8d7ab8a9cde116859b",
+    "created_at": "2026-09-24 21:09:38"
+  },
+  {
+    "id": 15,
+    "user_id": 2,
+    "action": "CORRECTIVE_ACTION_ASSIGNED",
+    "module": "CORRECTIVE_ACTIONS",
+    "record_id": "1",
+    "details": "{\"assigned_to\": 2, \"violation_code\": \"VIO-2026-0001\"}",
+    "ip_address": "::1",
+    "prev_hash": "ce879ce7eaea6c17899559c7ffeb4da145d654ece01ccccb45b2f85d66780959",
+    "hash": "d5a799e6f06fcf49a5aaf38bd5cebc03c8472b8e5cdf20e0dfd95f3e28834180",
+    "created_at": "2026-09-24 21:09:38"
+  }
+]

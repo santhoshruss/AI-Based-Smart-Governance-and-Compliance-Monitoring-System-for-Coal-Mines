@@ -1,0 +1,14 @@
+{
+  "test_id": "A1_health_backend",
+  "request": {
+    "method": "GET",
+    "url": "http://localhost:8080/api/health"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "message": "coal-governance backend is running",
+      "success": true
+    }
+  }
+}

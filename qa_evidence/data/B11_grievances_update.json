@@ -1,0 +1,14 @@
+{
+  "test_id": "B11_grievances_update",
+  "request": {
+    "method": "PUT",
+    "url": "http://localhost:8080/api/grievances/4/resolve"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "message": "Grievance marked as resolved"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "test_id": "D1_void_simple_happy_path",
+  "request": {
+    "inspection_id": 2,
+    "reason": "Created by mistake during testing routine"
+  },
+  "response": {
+    "create_res": {
+      "success": true,
+      "message": "Inspection created successfully",
+      "data": {
+        "id": 2
+      }
+    },
+    "void_res": {
+      "success": true,
+      "message": "Inspection voided successfully",
+      "data": {
+        "id": 2,
+        "status": "VOIDED",
+        "void_reason": "Created by mistake during testing routine"
+      }
+    }
+  }
+}

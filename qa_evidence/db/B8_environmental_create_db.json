@@ -1,0 +1,12 @@
+[
+  {
+    "id": 15,
+    "mine_id": 1,
+    "record_date": "2026-09-24",
+    "aqi": "75.00",
+    "water_quality_index": "8.00",
+    "noise_level_db": "68.00",
+    "dust_level": "45.00",
+    "created_at": "2026-09-24 21:09:38"
+  }
+]

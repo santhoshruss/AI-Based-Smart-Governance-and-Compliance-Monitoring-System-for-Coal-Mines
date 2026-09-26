@@ -1,0 +1,26 @@
+{
+  "test_id": "B15_users_create",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:8080/api/users",
+    "body": {
+      "full_name": "QA Worker Test",
+      "email": "qa_created_user@mine.gov",
+      "password": "Password@123",
+      "role_id": 4,
+      "subsidiary_id": 1,
+      "phone": "9999999999",
+      "status": "ACTIVE"
+    }
+  },
+  "response": {
+    "status": 201,
+    "body": {
+      "success": true,
+      "message": "User created successfully",
+      "data": {
+        "id": 7
+      }
+    }
+  }
+}

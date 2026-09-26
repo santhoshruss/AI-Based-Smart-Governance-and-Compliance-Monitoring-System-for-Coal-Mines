@@ -1,0 +1,25 @@
+{
+  "test_id": "B13_notifications",
+  "request": {
+    "method": "GET",
+    "url": "http://localhost:8080/api/notifications"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "message": "Notifications fetched",
+      "data": [
+        {
+          "id": 2,
+          "title": "New Grievance Submitted \u2014 Gevra Opencast Mine",
+          "message": "Grievance #4 (SAFETY, SLA: 48 hrs) reported: Worker helmet buckle is broken and requires immediate replacement.",
+          "severity": "WARNING",
+          "type": "GRIEVANCE",
+          "is_read": false,
+          "created_at": "2026-09-24T21:09:41+05:30"
+        }
+      ]
+    }
+  }
+}

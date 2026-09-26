@@ -1,0 +1,15 @@
+{
+  "test_id": "D7_resolve_guard_unauthorized",
+  "request": {
+    "corrective_action_id": 4,
+    "role": "SAFETY_OFFICER"
+  },
+  "response": {
+    "status": 403,
+    "body": {
+      "success": false,
+      "message": "You are not assigned to resolve this corrective action",
+      "error": "forbidden"
+    }
+  }
+}

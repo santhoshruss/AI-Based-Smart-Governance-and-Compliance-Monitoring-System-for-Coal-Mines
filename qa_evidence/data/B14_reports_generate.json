@@ -1,0 +1,16 @@
+{
+  "test_id": "B14_reports_generate",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:8080/api/reports/generate",
+    "body": {
+      "report_type": "GOVERNANCE_SUMMARY",
+      "format": "CSV",
+      "mine_id": 1
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": "Generic Report Summary,Format,Generated At\nGOVERNANCE_SUMMARY,CSV,2026-09-24T21:09:44+05:30\n"
+  }
+}

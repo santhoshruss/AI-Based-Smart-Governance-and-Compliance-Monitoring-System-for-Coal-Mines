@@ -1,0 +1,14 @@
+{
+  "test_id": "B1_mines_update",
+  "request": {
+    "method": "PUT",
+    "url": "http://localhost:8080/api/mines/11"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "message": "Mine updated successfully"
+    }
+  }
+}

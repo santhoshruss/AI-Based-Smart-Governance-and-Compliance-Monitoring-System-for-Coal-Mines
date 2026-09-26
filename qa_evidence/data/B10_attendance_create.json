@@ -1,0 +1,24 @@
+{
+  "test_id": "B10_attendance_create",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:8080/api/attendance",
+    "body": {
+      "mine_id": 1,
+      "worker_id": 1,
+      "record_date": "2026-09-24",
+      "shift": "GENERAL",
+      "status": "PRESENT"
+    }
+  },
+  "response": {
+    "status": 201,
+    "body": {
+      "success": true,
+      "message": "Attendance recorded successfully",
+      "data": {
+        "id": 7
+      }
+    }
+  }
+}

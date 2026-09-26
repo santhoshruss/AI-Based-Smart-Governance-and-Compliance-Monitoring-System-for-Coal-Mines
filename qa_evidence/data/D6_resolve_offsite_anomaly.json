@@ -1,0 +1,25 @@
+{
+  "test_id": "D6_resolve_offsite_anomaly",
+  "request": {
+    "corrective_action_id": 4,
+    "data": {
+      "resolution_notes": "Batteries replaced remotely from office",
+      "latitude": "23.8500",
+      "longitude": "87.0500"
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "message": "Corrective action resolved with geotagged evidence and submitted for review",
+      "data": {
+        "distance_to_mine_m": 475769.2696420491,
+        "evidence_path": "uploads/resolution_4_1790264449.png",
+        "id": 4,
+        "off_site_anomaly": true,
+        "status": "SUBMITTED"
+      }
+    }
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "test_id": "C6_voice_and_translation",
+  "request": {
+    "languages": [
+      "en",
+      "hi",
+      "ta",
+      "te"
+    ]
+  },
+  "response": {
+    "en": {
+      "voice": {
+        "data": {
+          "answer": "There are currently 0 open compliance violations across mines, with 0 critical hazards."
+        },
+        "message": "Voice query processed",
+        "success": true
+      },
+      "translate": {
+        "data": {
+          "translated_text": "Safety inspection required immediately"
+        },
+        "success": true
+      }
+    },
+    "hi": {
+      "voice": {
+        "data": {
+          "answer": "There are currently 0 open compliance violations across mines, with 0 critical hazards."
+        },
+        "message": "Voice query processed",
+        "success": true
+      },
+      "translate": {
+        "data": {
+          "translated_text": "Safety inspection required immediately"
+        },
+        "success": true
+      }
+    },
+    "ta": {
+      "voice": {
+        "data": {
+          "answer": "There are currently 10 active mines monitored in the platform, including ."
+        },
+        "message": "Voice query processed",
+        "success": true
+      },
+      "translate": {
+        "data": {
+          "translated_text": "Safety inspection required immediately"
+        },
+        "success": true
+      }
+    },
+    "te": {
+      "voice": {
+        "data": {
+          "answer": "There are currently 10 active mines monitored in the platform, including ."
+        },
+        "message": "Voice query processed",
+        "success": true
+      },
+      "translate": {
+        "data": {
+          "translated_text": "Safety inspection required immediately"
+        },
+        "success": true
+      }
+    }
+  }
+}

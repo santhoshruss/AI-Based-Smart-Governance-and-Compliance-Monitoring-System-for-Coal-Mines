@@ -1,0 +1,19 @@
+{
+  "test_id": "C3_sla_classification_critical",
+  "request": {
+    "description": "methane gas leak"
+  },
+  "response": {
+    "status": 201,
+    "body": {
+      "success": true,
+      "message": "Violation reported successfully",
+      "data": {
+        "classification": "CRITICAL_HAZARD",
+        "id": 2,
+        "sla_hours": 2,
+        "violation_code": "VIO-2026-0002"
+      }
+    }
+  }
+}

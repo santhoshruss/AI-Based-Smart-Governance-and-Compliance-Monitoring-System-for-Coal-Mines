@@ -1,0 +1,20 @@
+[
+  {
+    "id": 11,
+    "mine_name": "QA Test Mine Alpha Renamed",
+    "mine_code": "MINE-QA-01",
+    "subsidiary_id": 1,
+    "state": "West Bengal",
+    "district": "Paschim Bardhaman",
+    "latitude": "23.700000",
+    "longitude": "86.900000",
+    "mine_type": "UNDERGROUND",
+    "production_capacity": "50000.00",
+    "manager_id": null,
+    "status": "ACTIVE",
+    "created_by": 1,
+    "updated_by": 1,
+    "created_at": "2026-09-24 21:09:35",
+    "updated_at": "2026-09-24 21:09:35"
+  }
+]

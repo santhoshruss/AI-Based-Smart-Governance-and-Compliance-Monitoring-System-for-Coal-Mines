@@ -1,0 +1,29 @@
+{
+  "test_id": "A2_login_REGULATORY_OFFICER",
+  "request": {
+    "method": "POST",
+    "url": "http://localhost:8080/api/auth/login",
+    "body": {
+      "email": "regulator@gov.in",
+      "password": "[REDACTED]"
+    }
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "message": "Login successful",
+      "data": {
+        "token": "[REDACTED_JWT_TOKEN]",
+        "user": {
+          "email": "regulator@gov.in",
+          "full_name": "Deepak Rao (Regulator)",
+          "id": 6,
+          "role_key": "REGULATORY_OFFICER",
+          "role_name": "Regulatory Officer",
+          "subsidiary_id": null
+        }
+      }
+    }
+  }
+}
