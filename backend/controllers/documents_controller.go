@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -273,16 +272,31 @@ func (dc *DocumentsController) UploadDocument(c *gin.Context) {
 	var complianceStatus, violationDetails, riskLevel, correctiveAction, dueDate, regulatoryRef string
 	var fullOCRJSON []byte
 
-	client := &http.Client{Timeout: 30 * time.Second}
-	resp, postErr := client.Post(ocrURL, "application/json", bytes.NewBuffer(payloadJSON))
-	if postErr != nil && strings.Contains(ocrURL, "localhost") {
-		fallbackURL := strings.Replace(ocrURL, "localhost", "127.0.0.1", 1)
-		resp, postErr = client.Post(fallbackURL, "application/json", bytes.NewBuffer(payloadJSON))
+	// Try primary AI Service URL and fallback to production AI URL if failed
+	candidateURLs := []string{
+		ocrURL,
+		"https://coal-governance-ai.onrender.com/ocr",
+		"http://127.0.0.1:5000/ocr",
 	}
 
-	if postErr != nil {
-		log.Printf("[DocumentsController] OCR request to %s error: %v", ocrURL, postErr)
-	} else if resp != nil {
+	client := &http.Client{Timeout: 30 * time.Second}
+	var resp *http.Response
+	var postErr error
+
+	for _, urlToTry := range candidateURLs {
+		if urlToTry == "" {
+			continue
+		}
+		resp, postErr = client.Post(urlToTry, "application/json", bytes.NewBuffer(payloadJSON))
+		if postErr == nil && resp != nil && resp.StatusCode == http.StatusOK {
+			break
+		}
+		if resp != nil {
+			resp.Body.Close()
+		}
+	}
+
+	if resp != nil {
 		defer resp.Body.Close()
 		if resp.StatusCode == http.StatusOK {
 			bodyBytes, _ := io.ReadAll(resp.Body)
