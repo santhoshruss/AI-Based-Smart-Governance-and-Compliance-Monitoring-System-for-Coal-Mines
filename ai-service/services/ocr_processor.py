@@ -233,10 +233,15 @@ def run_local_image_ocr(image_path):
 
 
 def clean_ocr_spaces(text):
-    """Fixes common OCR word spacing issues."""
+    """Fixes common OCR word spacing and concatenated word issues."""
     if not text:
         return ""
     fixed = text
+    # Insert space after colon if missing: e.g. "InspectionDate:2026-09-20" -> "InspectionDate: 2026-09-20"
+    fixed = re.sub(r':(?=[A-Za-z0-9])', r': ', fixed)
+    # Split camelCase words from OCR: e.g. "JayantOpencastMine" -> "Jayant Opencast Mine", "SafetyClearance" -> "Safety Clearance"
+    fixed = re.sub(r'([a-z])([A-Z])', r'\1 \2', fixed)
+    # Common OCR word fixes
     patterns = [
         (r'Docu\s*me\s*nt', 'Document'),
         (r'Lice\s*nse|Lice\s*nce', 'License'),
@@ -382,7 +387,7 @@ def extract_certificate_number(text, filename=""):
     """Dynamically extracts certificate / permit / inspection numbers from document text or filename."""
     if text:
         patterns = [
-            r'(?:Certificate\s*ID|Certificate\s*Number|Certificate\s*No|Cert\s*ID|Inspection\s*ID|License\s*No|Report\s*No|Reference\s*No|Permit\s*No|Notice\s*No|Approval\s*No)\s*[:#\.-]?\s*([A-Za-z0-9\-_/]+)',
+            r'(?:Certificate\s*ID|Certificate\s*Number|Certificate\s*No|Cert\s*ID|Inspection\s*ID|License\s*No|Report\s*No|Reference\s*No|Permit\s*No|Notice\s*No|Approval\s*No)\s*[:#\.-]?\s*\n?\s*([A-Za-z0-9\-_/]+)',
             r'([A-Z]{2,6}/[A-Z0-9\-_/]{4,30})',
             r'(DGMS/[A-Z0-9\-_/]+)',
             r'(EC/[A-Z0-9\-_/]+)',
@@ -408,13 +413,12 @@ def extract_mine_info(text):
     if not text:
         return "General / CIL Mine", "CIL-GEN-01"
 
-    # Match against extensive CIL and Indian Coal Mine directory first
     known_mines = [
         ("Gevra", "SECL-GEV-01", "Gevra Opencast Mine"),
         ("Kusmunda", "SECL-KUS-02", "Kusmunda Opencast Mine"),
         ("Dipka", "SECL-DIP-03", "Dipka Opencast Mine"),
         ("Basundhara", "MCL-BAS-01", "Basundhara Opencast Mine"),
-        ("Jayant", "NCL-JYT-01", "Jayant Opencast Mine"),
+        ("Jayant", "NCL-JAY-01", "Jayant Opencast Mine"),
         ("Nigahi", "NCL-NIG-02", "Nigahi Opencast Mine"),
         ("Dudhichua", "NCL-DUD-03", "Dudhichua Opencast Mine"),
         ("Lakhanpur", "MCL-LAK-01", "Lakhanpur Opencast Mine"),
@@ -438,19 +442,21 @@ def extract_mine_info(text):
         ("Korba", "SECL-KOR-01", "Korba Opencast Mine"),
         ("Singrauli", "NCL-SIN-01", "Singrauli Coalfield")
     ]
-    for key, code, full_name in known_mines:
-        if re.search(r'\b' + re.escape(key) + r'\b', text, re.IGNORECASE):
-            return full_name, code
 
-    # Direct key-value regex
-    name_match = re.search(r'(?:Mine\s*Name|Site\s*Name|Colliery|Project\s*Name)\s*[:#\.-]?\s*([^\n\r,]+)', text, re.IGNORECASE)
-    code_match = re.search(r'(?:Mine\s*Code|Site\s*Code|Unit\s*Code)\s*[:#\.-]?\s*([A-Za-z0-9\-]+)', text, re.IGNORECASE)
-    
-    extracted_name = name_match.group(1).strip() if name_match else ""
+    # Check for labeled Mine Code first (e.g. "Mine Code:\nNCL-JAY-01" or "Mine Code: NCL-JAY-01")
+    code_match = re.search(r'(?:Mine\s*Code|Site\s*Code|Unit\s*Code)\s*[:#\.-]?\s*\n?\s*([A-Za-z0-9\-]+)', text, re.IGNORECASE)
     extracted_code = code_match.group(1).strip() if code_match else ""
-    
-    if extracted_name and len(extracted_name) > 3:
+
+    # Check for labeled Mine Name (e.g. "Mine Name:\nJayant Opencast Mine" or "Mine Name: Jayant Opencast Mine")
+    name_match = re.search(r'(?:Mine\s*Name|Site\s*Name|Colliery|Project\s*Name)\s*[:#\.-]?\s*\n?\s*([^\n\r,]+)', text, re.IGNORECASE)
+    extracted_name = name_match.group(1).strip() if name_match else ""
+
+    if extracted_name and len(extracted_name) > 3 and not re.search(r'^(?:Mine|Name|Code|Subsidiary|Location|Certificate|Document)$', extracted_name, re.IGNORECASE):
         clean_name = extracted_name
+        # Match against known mines for exact canonical name
+        for key, code, full_name in known_mines:
+            if re.search(r'\b' + re.escape(key) + r'\b', clean_name, re.IGNORECASE):
+                return full_name, (extracted_code or code)
         if not re.search(r'(?:Mine|Colliery|OCP|Underground|Opencast)', clean_name, re.IGNORECASE):
             clean_name += " Opencast Mine"
         if extracted_code:
@@ -458,21 +464,24 @@ def extract_mine_info(text):
         prefix = "".join([w[0].upper() for w in clean_name.split()[:3]])
         return clean_name, f"CIL-{prefix}-01"
 
-    # Dynamic generic pattern match
-    dynamic_match = re.search(r'([A-Z][a-zA-Z\s]{2,25}(?:Mine|Colliery|Opencast|Underground|Coal\s*Project|OCP|UG))', text)
-    if dynamic_match:
-        m_name = dynamic_match.group(1).strip()
-        prefix = "".join([w[0].upper() for w in m_name.split() if w[0].isalnum()][:3])
-        return m_name, f"CIL-{prefix}-01"
+    # Match known mines in full text (skipping location-only matches like Singrauli)
+    for key, code, full_name in known_mines:
+        if key == "Singrauli":
+            continue
+        if re.search(r'\b' + re.escape(key) + r'\b', text, re.IGNORECASE):
+            return full_name, (extracted_code or code)
 
-    return "General / CIL Mine", "CIL-GEN-01"
+    if re.search(r'\bSingrauli\b', text, re.IGNORECASE):
+        return "Singrauli Coalfield", (extracted_code or "NCL-SIN-01")
+
+    return "General / CIL Mine", (extracted_code or "CIL-GEN-01")
 
 
 def extract_doc_type(text, filename=""):
     """Dynamically determines the statutory document type from OCR text and file attributes."""
     if text:
         # Check explicit labeled Document Type
-        match = re.search(r'Document\s*Type\s*[:#\.-]?\s*([^\n\r,]+)', text, re.IGNORECASE)
+        match = re.search(r'Document\s*Type\s*[:#\.-]?\s*\n?\s*([^\n\r,]+)', text, re.IGNORECASE)
         if match:
             doc_label = match.group(1).strip()
             if len(doc_label) > 3 and not doc_label.lower() in ["statutory", "general"]:
