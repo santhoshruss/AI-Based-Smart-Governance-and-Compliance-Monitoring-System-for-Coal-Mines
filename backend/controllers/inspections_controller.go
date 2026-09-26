@@ -69,7 +69,7 @@ func (ic *InspectionsController) ListInspections(c *gin.Context) {
 	inspections := []models.Inspection{}
 	for rows.Next() {
 		var i models.Inspection
-		var dateVal, timeVal []uint8
+		var dateVal, timeVal interface{}
 		var createdAtVal time.Time
 		var voidReason sql.NullString
 		var voidedBy sql.NullInt64
@@ -83,8 +83,8 @@ func (ic *InspectionsController) ListInspections(c *gin.Context) {
 			utils.Fail(c, http.StatusInternalServerError, "Failed to parse inspections", err.Error())
 			return
 		}
-		i.InspectionDate = string(dateVal)
-		i.InspectionTime = string(timeVal)
+		i.InspectionDate = utils.FormatDateFromDB(dateVal)
+		i.InspectionTime = utils.FormatDateFromDB(timeVal)
 		i.CreatedAt = createdAtVal
 		if voidReason.Valid {
 			i.VoidReason = &voidReason.String
@@ -108,7 +108,7 @@ func (ic *InspectionsController) GetInspection(c *gin.Context) {
 	id := c.Param("id")
 
 	var i models.Inspection
-	var dateVal, timeVal []uint8
+	var dateVal, timeVal interface{}
 	var voidReason sql.NullString
 	var voidedBy sql.NullInt64
 	var voidedByName string
@@ -133,8 +133,8 @@ func (ic *InspectionsController) GetInspection(c *gin.Context) {
 		utils.Fail(c, http.StatusInternalServerError, "Failed to fetch inspection", err.Error())
 		return
 	}
-	i.InspectionDate = string(dateVal)
-	i.InspectionTime = string(timeVal)
+	i.InspectionDate = utils.FormatDateFromDB(dateVal)
+	i.InspectionTime = utils.FormatDateFromDB(timeVal)
 	if voidReason.Valid {
 		i.VoidReason = &voidReason.String
 	}

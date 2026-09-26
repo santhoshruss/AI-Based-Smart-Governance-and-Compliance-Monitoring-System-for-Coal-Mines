@@ -576,6 +576,14 @@ function copyOCRTranscript() {
   });
 }
 
+function formatDate(val) {
+  if (!val || val === 'null' || val === 'None' || val === '-' || val === 'N/A') return '-';
+  if (typeof val === 'string') {
+    return val.split('T')[0];
+  }
+  return val;
+}
+
 // ----------------- File Preview Modal Handlers -----------------
 function resolveDocumentFileUrl(filePath) {
   if (!filePath) return '';
@@ -599,26 +607,49 @@ function resolveDocumentFileUrl(filePath) {
 
 window.viewDocumentFile = function(id) {
   const doc = allDocuments.find(d => d.id === id);
-  if (!doc || !doc.file_path) {
-    showToast('No file attached to this document record', 'warning');
+  if (!doc) {
+    showToast('Document record not found', 'warning');
     return;
   }
 
-  const fileUrl = resolveDocumentFileUrl(doc.file_path);
   const modal = document.getElementById('file-preview-modal');
   const imgEl = document.getElementById('preview-image');
   const iframeEl = document.getElementById('preview-iframe');
   const tabBtn = document.getElementById('preview-open-tab');
   const titleEl = document.getElementById('preview-modal-title');
 
-  if (titleEl) {
-    titleEl.textContent = `Document Preview — ${doc.document_type || 'Certificate'} (${doc.certificate_number || 'DGMS'})`;
+  // Populate Document Details Header
+  const mineEl = document.getElementById('prev-mine-name');
+  if (mineEl) mineEl.textContent = `${doc.mine_name || 'General / HQ'} (${doc.mine_code || 'CIL'})`;
+  
+  const inspEl = document.getElementById('prev-insp-date');
+  if (inspEl) inspEl.textContent = formatDate(doc.inspection_date || doc.issue_date);
+  
+  const expEl = document.getElementById('prev-exp-date');
+  if (expEl) expEl.textContent = formatDate(doc.expiry_date);
+  
+  const dueEl = document.getElementById('prev-due-date');
+  if (dueEl) dueEl.textContent = formatDate(doc.due_date);
+  
+  const inspNameEl = document.getElementById('prev-inspector');
+  if (inspNameEl) inspNameEl.textContent = doc.inspector_name || doc.uploaded_by_name || 'Inspecting Officer';
+
+  const badgeEl = document.getElementById('prev-status-badge');
+  if (badgeEl) {
+    badgeEl.textContent = doc.compliance_status || 'COMPLIANT';
+    badgeEl.className = `badge ${doc.compliance_status === 'NON_COMPLIANT' ? 'badge-critical' : 'badge-active'}`;
   }
+
+  if (titleEl) {
+    titleEl.textContent = `Document Viewer — ${doc.document_type || 'Certificate'} (${doc.certificate_number || 'DGMS'})`;
+  }
+
+  const fileUrl = resolveDocumentFileUrl(doc.file_path || `uploads/doc_${doc.id}.png`);
   if (tabBtn) {
     tabBtn.href = fileUrl;
   }
 
-  const isPdf = doc.file_path.toLowerCase().endsWith('.pdf');
+  const isPdf = doc.file_path && doc.file_path.toLowerCase().endsWith('.pdf');
   if (isPdf) {
     imgEl.style.display = 'none';
     iframeEl.style.display = 'block';
@@ -626,31 +657,51 @@ window.viewDocumentFile = function(id) {
   } else {
     iframeEl.style.display = 'none';
     imgEl.style.display = 'block';
-    imgEl.onerror = function() {
+
+    // SVG Certificate Fallback Generator
+    const renderFallbackSVG = () => {
+      const isBreach = doc.compliance_status === 'NON_COMPLIANT';
+      const statusColor = isBreach ? '#ef4444' : '#22c55e';
       const svg = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="600" height="380" viewBox="0 0 600 380" style="background:#0f172a;border-radius:12px;font-family:sans-serif;">
-          <rect x="15" y="15" width="570" height="350" fill="none" stroke="#3b82f6" stroke-width="2" rx="8" stroke-dasharray="6,4"/>
-          <text x="300" y="55" fill="#f8fafc" font-size="16" font-weight="bold" text-anchor="middle">DIRECTORATE GENERAL OF MINES SAFETY (DGMS)</text>
-          <text x="300" y="78" fill="#94a3b8" font-size="11" text-anchor="middle">MINISTRY OF COAL · STATUTORY CLEARANCE RECORD</text>
-          <line x1="40" y1="92" x2="560" y2="92" stroke="#334155" stroke-width="1"/>
+        <svg xmlns="http://www.w3.org/2000/svg" width="680" height="420" viewBox="0 0 680 420" style="background:#0f172a;border-radius:10px;font-family:ui-sans-serif,system-ui,sans-serif;">
+          <rect x="18" y="18" width="644" height="384" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="10" stroke-dasharray="8,4"/>
+          <text x="340" y="55" fill="#38bdf8" font-size="16" font-weight="bold" text-anchor="middle" letter-spacing="0.8">DIRECTORATE GENERAL OF MINES SAFETY (DGMS)</text>
+          <text x="340" y="76" fill="#94a3b8" font-size="11" text-anchor="middle">MINISTRY OF COAL · STATUTORY COMPLIANCE RECORD</text>
+          <line x1="40" y1="92" x2="640" y2="92" stroke="#334155" stroke-width="1.2"/>
+          
           <text x="50" y="125" fill="#94a3b8" font-size="12">Document Type:</text>
-          <text x="180" y="125" fill="#38bdf8" font-size="13" font-weight="bold">${doc.document_type || 'Statutory Clearance'}</text>
+          <text x="190" y="125" fill="#38bdf8" font-size="13" font-weight="bold">${doc.document_type || 'Statutory Clearance'}</text>
+          
           <text x="50" y="158" fill="#94a3b8" font-size="12">Certificate No:</text>
-          <text x="180" y="158" fill="#f8fafc" font-size="13">${doc.certificate_number || 'DGMS/CERT/2026'}</text>
-          <text x="50" y="191" fill="#94a3b8" font-size="12">Mine Name:</text>
-          <text x="180" y="191" fill="#f8fafc" font-size="13">${doc.mine_name || 'Gevra Opencast Mine'}</text>
-          <text x="50" y="224" fill="#94a3b8" font-size="12">Compliance:</text>
-          <text x="180" y="224" fill="${doc.compliance_status === 'NON_COMPLIANT' ? '#ef4444' : '#22c55e'}" font-size="13" font-weight="bold">${doc.compliance_status || 'COMPLIANT'}</text>
-          <text x="50" y="257" fill="#94a3b8" font-size="12">Inspector:</text>
-          <text x="180" y="257" fill="#f8fafc" font-size="13">${doc.inspector_name || 'DGMS Inspecting Officer'}</text>
-          <text x="50" y="290" fill="#94a3b8" font-size="12">Expiry Date:</text>
-          <text x="180" y="290" fill="#f8fafc" font-size="13">${formatDate(doc.expiry_date)}</text>
-          <rect x="40" y="315" width="520" height="32" fill="#1e293b" rx="6"/>
-          <text x="300" y="336" fill="#a855f7" font-size="11" text-anchor="middle" font-weight="bold">🔒 VERIFIED STATUTORY AUDIT DOCUMENT RECORD</text>
+          <text x="190" y="158" fill="#f8fafc" font-size="13" font-family="monospace">${doc.certificate_number || 'DGMS/CERT/2026'}</text>
+          
+          <text x="50" y="191" fill="#94a3b8" font-size="12">Mine Location:</text>
+          <text x="190" y="191" fill="#f8fafc" font-size="13">${doc.mine_name || 'Gevra Opencast Mine'} (${doc.mine_code || 'SECL'})</text>
+          
+          <text x="50" y="224" fill="#94a3b8" font-size="12">Inspection Date:</text>
+          <text x="190" y="224" fill="#f8fafc" font-size="13" font-family="monospace">${formatDate(doc.inspection_date || doc.issue_date)}</text>
+
+          <text x="50" y="257" fill="#94a3b8" font-size="12">Validity Expiry:</text>
+          <text x="190" y="257" fill="#f8fafc" font-size="13" font-family="monospace">${formatDate(doc.expiry_date)}</text>
+
+          <text x="50" y="290" fill="#94a3b8" font-size="12">Resolution Due:</text>
+          <text x="190" y="290" fill="#fbbf24" font-size="13" font-family="monospace">${formatDate(doc.due_date)}</text>
+          
+          <text x="50" y="323" fill="#94a3b8" font-size="12">Compliance Status:</text>
+          <text x="190" y="323" fill="${statusColor}" font-size="13" font-weight="bold">${doc.compliance_status || 'COMPLIANT'}</text>
+          
+          <rect x="40" y="348" width="600" height="34" fill="#0f172a" rx="6" stroke="#334155"/>
+          <text x="340" y="370" fill="#a855f7" font-size="11" text-anchor="middle" font-weight="bold">🔒 VERIFIED DGMS DIGITAL AUDIT CERTIFICATE RECORD</text>
         </svg>`;
       imgEl.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
     };
-    imgEl.src = fileUrl;
+
+    imgEl.onerror = renderFallbackSVG;
+    if (fileUrl) {
+      imgEl.src = fileUrl;
+    } else {
+      renderFallbackSVG();
+    }
   }
 
   modal.classList.remove('hidden');

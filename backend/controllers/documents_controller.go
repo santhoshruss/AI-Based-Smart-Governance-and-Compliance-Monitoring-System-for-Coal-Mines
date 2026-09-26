@@ -141,7 +141,7 @@ func (dc *DocumentsController) ListDocuments(c *gin.Context) {
 		var mineID, contractorID sql.NullInt64
 		var reviewedBy, approvedBy, verifiedBy sql.NullInt64
 		var reviewedAt, approvedAt, verifiedAt sql.NullTime
-		var issueVal, expiryVal, inspectVal, dueVal []uint8
+		var issueVal, expiryVal, inspectVal, dueVal interface{}
 		var ocrJSONVal sql.NullString
 
 		err := rows.Scan(
@@ -196,18 +196,10 @@ func (dc *DocumentsController) ListDocuments(c *gin.Context) {
 			t := verifiedAt.Time.Format("2006-01-02 15:04")
 			d.VerifiedAt = &t
 		}
-		if issueVal != nil {
-			d.IssueDate = string(issueVal)
-		}
-		if expiryVal != nil {
-			d.ExpiryDate = string(expiryVal)
-		}
-		if inspectVal != nil {
-			d.InspectionDate = string(inspectVal)
-		}
-		if dueVal != nil {
-			d.DueDate = string(dueVal)
-		}
+		d.IssueDate = utils.FormatDateFromDB(issueVal)
+		d.ExpiryDate = utils.FormatDateFromDB(expiryVal)
+		d.InspectionDate = utils.FormatDateFromDB(inspectVal)
+		d.DueDate = utils.FormatDateFromDB(dueVal)
 		if ocrJSONVal.Valid && ocrJSONVal.String != "" {
 			var parsed interface{}
 			if err := json.Unmarshal([]byte(ocrJSONVal.String), &parsed); err == nil {
@@ -392,6 +384,11 @@ func (dc *DocumentsController) UploadDocument(c *gin.Context) {
 
 	webFilePath := fmt.Sprintf("uploads/%s", filename)
 
+	issueDateVal := utils.ParseNullableDate(issueDate)
+	expiryDateVal := utils.ParseNullableDate(expiryDate)
+	inspectionDateVal := utils.ParseNullableDate(inspectionDate)
+	dueDateVal := utils.ParseNullableDate(dueDate)
+
 	var newID int64
 	err = database.DB.QueryRow(`
 		INSERT INTO documents (
@@ -404,9 +401,9 @@ func (dc *DocumentsController) UploadDocument(c *gin.Context) {
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING_REVIEW')
 		RETURNING id`,
 		mineIDVal, contractorIDVal, docType, webFilePath, certNumber,
-		issueDate, expiryDate, rawText, userID, status,
-		mineCode, inspectorName, inspectionDate, complianceStatus,
-		violationDetails, riskLevel, correctiveAction, dueDate,
+		issueDateVal, expiryDateVal, rawText, userID, status,
+		mineCode, inspectorName, inspectionDateVal, complianceStatus,
+		violationDetails, riskLevel, correctiveAction, dueDateVal,
 		regulatoryRef, string(fullOCRJSON)).Scan(&newID)
 
 	if err != nil {
@@ -434,6 +431,7 @@ func (dc *DocumentsController) UploadDocument(c *gin.Context) {
 		"mine_name":            mineNameMatched,
 		"mine_code":            mineCode,
 		"inspector_name":       inspectorName,
+		"inspection_date":      inspectionDate,
 		"compliance_status":    complianceStatus,
 		"risk_level":           riskLevel,
 		"violation_details":    violationDetails,
@@ -442,6 +440,8 @@ func (dc *DocumentsController) UploadDocument(c *gin.Context) {
 		"regulatory_reference": regulatoryRef,
 		"issue_date":           issueDate,
 		"expiry_date":          expiryDate,
+		"file_path":            webFilePath,
+		"ocr_raw_text":         rawText,
 		"status":               status,
 		"workflow_status":      "PENDING_REVIEW",
 	})
@@ -474,10 +474,7 @@ func (dc *DocumentsController) ReviewDocument(c *gin.Context) {
 
 	userID, _ := c.Get(middleware.CtxUserID)
 
-	var dueDateVal interface{} = nil
-	if req.DueDate != "" {
-		dueDateVal = req.DueDate
-	}
+	var dueDateVal interface{} = utils.ParseNullableDate(req.DueDate)
 
 	_, err = database.DB.Exec(`
 		UPDATE documents
@@ -612,6 +609,8 @@ func (dc *DocumentsController) FlagViolationFromDocument(c *gin.Context) {
 		midVal = int(mineID.Int64)
 	}
 
+	deadlineVal := utils.ParseNullableDate(req.DueDate)
+
 	// Insert into violations
 	vCode := fmt.Sprintf("VIO-DOC-%d-%d", id, time.Now().Unix()%100000)
 	var vID int64
@@ -619,7 +618,7 @@ func (dc *DocumentsController) FlagViolationFromDocument(c *gin.Context) {
 		INSERT INTO violations (violation_code, mine_id, category_id, description, severity, status, reported_by, deadline)
 		VALUES (?, ?, 1, ?, ?, 'OPEN', ?, ?)
 		RETURNING id`,
-		vCode, midVal, fmt.Sprintf("[%s] %s (Ref: %s / %s)", req.Title, req.Description, certNumber, docType), req.Severity, userID, req.DueDate).Scan(&vID)
+		vCode, midVal, fmt.Sprintf("[%s] %s (Ref: %s / %s)", req.Title, req.Description, certNumber, docType), req.Severity, userID, deadlineVal).Scan(&vID)
 
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "Failed to create violation", err.Error())
@@ -631,7 +630,7 @@ func (dc *DocumentsController) FlagViolationFromDocument(c *gin.Context) {
 		_, _ = database.DB.Exec(`
 			INSERT INTO corrective_actions (violation_id, assigned_to, action_description, deadline, status)
 			VALUES (?, ?, ?, ?, 'ASSIGNED')`,
-			vID, userID, req.CorrectiveAction, req.DueDate)
+			vID, userID, req.CorrectiveAction, deadlineVal)
 	}
 
 	// Update document status
@@ -684,19 +683,10 @@ func (dc *DocumentsController) UpdateDocument(c *gin.Context) {
 
 	userID, _ := c.Get(middleware.CtxUserID)
 
-	var issueVal, expiryVal, inspectVal, dueVal interface{} = nil, nil, nil, nil
-	if req.IssueDate != "" {
-		issueVal = req.IssueDate
-	}
-	if req.ExpiryDate != "" {
-		expiryVal = req.ExpiryDate
-	}
-	if req.InspectionDate != "" {
-		inspectVal = req.InspectionDate
-	}
-	if req.DueDate != "" {
-		dueVal = req.DueDate
-	}
+	issueVal := utils.ParseNullableDate(req.IssueDate)
+	expiryVal := utils.ParseNullableDate(req.ExpiryDate)
+	inspectVal := utils.ParseNullableDate(req.InspectionDate)
+	dueVal := utils.ParseNullableDate(req.DueDate)
 
 	_, err = database.DB.Exec(`
 		UPDATE documents

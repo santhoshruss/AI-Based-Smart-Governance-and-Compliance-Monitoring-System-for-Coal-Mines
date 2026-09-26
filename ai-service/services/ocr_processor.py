@@ -337,7 +337,7 @@ def process_document_ocr(file_path=None, file_base64=None, filename=None):
         cert_no = extract_certificate_number(raw_text, filename)
         mine_name, mine_code = extract_mine_info(raw_text)
         doc_type = extract_doc_type(raw_text, filename)
-        inspection_date, expiry_date, due_date = extract_dates_extended(raw_text)
+        inspection_date, issue_date, expiry_date, due_date = extract_dates_extended(raw_text)
         inspector_name = extract_inspector(raw_text)
         compliance_status, risk_level, violation_details, corrective_action = extract_compliance_findings(raw_text)
         reg_ref = extract_regulatory_reference(raw_text)
@@ -348,6 +348,7 @@ def process_document_ocr(file_path=None, file_base64=None, filename=None):
         mine_name = "General Mine / CIL Site"
         mine_code = "CIL-GEN-01"
         inspection_date = datetime.date.today().isoformat()
+        issue_date = inspection_date
         expiry_date = (datetime.date.today() + datetime.timedelta(days=365)).isoformat()
         due_date = (datetime.date.today() + datetime.timedelta(days=30)).isoformat()
         inspector_name = "Inspecting Officer"
@@ -370,7 +371,7 @@ def process_document_ocr(file_path=None, file_base64=None, filename=None):
         "corrective_action": corrective_action,
         "due_date": due_date,
         "certificate_number": cert_no,
-        "issue_date": inspection_date,
+        "issue_date": issue_date,
         "expiry_date": expiry_date,
         "regulatory_reference": reg_ref,
         "ocr_raw_text": raw_text
@@ -499,58 +500,135 @@ def extract_doc_type(text, filename=""):
     return "Safety Clearance"
 
 
+MONTH_MAP = {
+    'jan': 1, 'january': 1,
+    'feb': 2, 'february': 2,
+    'mar': 3, 'march': 3,
+    'apr': 4, 'april': 4,
+    'may': 5,
+    'jun': 6, 'june': 6,
+    'jul': 7, 'july': 7,
+    'aug': 8, 'august': 8,
+    'sep': 9, 'sept': 9, 'september': 9,
+    'oct': 10, 'october': 10,
+    'nov': 11, 'november': 11,
+    'dec': 12, 'december': 12
+}
+
+def parse_date_to_iso(val):
+    """Converts various date string formats into standard YYYY-MM-DD ISO format."""
+    if not val:
+        return ""
+    val = val.strip()
+    val = re.sub(r'(?<=\d)(st|nd|rd|th)\b', '', val, flags=re.IGNORECASE)
+    val = re.sub(r'[,]', ' ', val).strip()
+
+    # 1. ISO YYYY-MM-DD, YYYY/MM/DD, YYYY.MM.DD
+    m1 = re.match(r'^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$', val)
+    if m1:
+        y, m, d = int(m1.group(1)), int(m1.group(2)), int(m1.group(3))
+        if 1 <= m <= 12 and 1 <= d <= 31:
+            return f"{y:04d}-{m:02d}-{d:02d}"
+
+    # 2. DD-MM-YYYY, DD/MM/YYYY, DD.MM.YYYY
+    m2 = re.match(r'^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$', val)
+    if m2:
+        d, m, y = int(m2.group(1)), int(m2.group(2)), int(m2.group(3))
+        if 1 <= m <= 12 and 1 <= d <= 31:
+            return f"{y:04d}-{m:02d}-{d:02d}"
+        elif 1 <= d <= 12 and 1 <= m <= 31:
+            return f"{y:04d}-{d:02d}-{m:02d}"
+
+    # 3. DD Month YYYY (e.g. 15 October 2024, 15-Oct-2024, 15 Oct 2024)
+    m3 = re.match(r'^(\d{1,2})[-/\s]+([A-Za-z]+)[-/\s]+(\d{4})$', val)
+    if m3:
+        d_val = int(m3.group(1))
+        mon_str = m3.group(2).lower()
+        y_val = int(m3.group(3))
+        if mon_str in MONTH_MAP and 1 <= d_val <= 31:
+            return f"{y_val:04d}-{MONTH_MAP[mon_str]:02d}-{d_val:02d}"
+
+    # 4. Month DD YYYY (e.g. October 15 2024, Oct 15 2024)
+    m4 = re.match(r'^([A-Za-z]+)[-/\s]+(\d{1,2})[-/\s]+(\d{4})$', val)
+    if m4:
+        mon_str = m4.group(1).lower()
+        d_val = int(m4.group(2))
+        y_val = int(m4.group(3))
+        if mon_str in MONTH_MAP and 1 <= d_val <= 31:
+            return f"{y_val:04d}-{MONTH_MAP[mon_str]:02d}-{d_val:02d}"
+
+    return ""
+
+
 def extract_dates_extended(text):
-    """Dynamically extracts all labeled and free-floating dates, normalizing to YYYY-MM-DD."""
+    """Dynamically extracts labeled and free-floating dates, normalizing to YYYY-MM-DD."""
     today = datetime.date.today()
     default_insp = today.isoformat()
     default_exp = (today + datetime.timedelta(days=365)).isoformat()
     default_due = (today + datetime.timedelta(days=30)).isoformat()
+    default_issue = default_insp
 
     if not text:
-        return default_insp, default_exp, default_due
+        return default_insp, default_issue, default_exp, default_due
 
-    def normalize_date_str(val):
-        if not val:
-            return ""
-        val = val.strip().replace('/', '-').replace('.', '-')
-        m1 = re.match(r'^(\d{4})-(\d{1,2})-(\d{1,2})$', val)
-        if m1:
-            return f"{m1.group(1)}-{m1.group(2).zfill(2)}-{m1.group(3).zfill(2)}"
-        m2 = re.match(r'^(\d{1,2})-(\d{1,2})-(\d{4})$', val)
-        if m2:
-            return f"{m2.group(3)}-{m2.group(2).zfill(2)}-{m2.group(1).zfill(2)}"
-        return val
+    raw_date_pattern = r'(?:' \
+        r'\d{4}[-/.]\d{1,2}[-/.]\d{1,2}' \
+        r'|\d{1,2}[-/.]\d{1,2}[-/.]\d{4}' \
+        r'|\d{1,2}(?:st|nd|rd|th)?[-/\s]+[A-Za-z]+[-/\s]+\d{4}' \
+        r'|[A-Za-z]+[-/\s]+\d{1,2}(?:st|nd|rd|th)?[-/\s,]+\d{4}' \
+        r')'
 
-    insp_match = re.search(r'(?:Inspection\s*Date|Audit\s*Date|Issue\s*Date|Date\s*of\s*Inspection|Date\s*of\s*Issue|Date)\s*[:#\.-]?\s*([0-9]{4}[-/.][0-9]{1,2}[-/.][0-9]{1,2}|[0-9]{1,2}[-/.][0-9]{1,2}[-/.][0-9]{4})', text, re.IGNORECASE)
-    exp_match = re.search(r'(?:Expiry\s*Date|Valid\s*Till|Valid\s*Through|Validity\s*Date|Expires\s*On)\s*[:#\.-]?\s*([0-9]{4}[-/.][0-9]{1,2}[-/.][0-9]{1,2}|[0-9]{1,2}[-/.][0-9]{1,2}[-/.][0-9]{4})', text, re.IGNORECASE)
-    due_match = re.search(r'(?:Due\s*Date|Action\s*Due|Compliance\s*Due|Rectification\s*Due|Target\s*Date)\s*[:#\.-]?\s*([0-9]{4}[-/.][0-9]{1,2}[-/.][0-9]{1,2}|[0-9]{1,2}[-/.][0-9]{1,2}[-/.][0-9]{4})', text, re.IGNORECASE)
+    def find_labeled(pattern_str):
+        p = rf'(?:{pattern_str})\s*[:#=\.-]?\s*({raw_date_pattern})'
+        m = re.search(p, text, re.IGNORECASE)
+        if m:
+            iso = parse_date_to_iso(m.group(1))
+            if iso:
+                return iso
+        return ""
 
-    insp_date = normalize_date_str(insp_match.group(1)) if insp_match else ""
-    exp_date = normalize_date_str(exp_match.group(1)) if exp_match else ""
-    due_date = normalize_date_str(due_match.group(1)) if due_match else ""
+    insp_date = find_labeled(r'Inspection\s*Date|Date\s*of\s*Inspection|Inspected\s*On|Audit\s*Date|Date\s*of\s*Audit')
+    issue_date = find_labeled(r'Issue\s*Date|Date\s*of\s*Issue|Issued\s*On|Date\s*of\s*Grant|Grant\s*Date')
+    exp_date = find_labeled(r'Expiry\s*Date|Date\s*of\s*Expiry|Valid\s*Till|Valid\s*Through|Valid\s*Upto|Valid\s*Until|Validity\s*Date|Validity|Expires\s*On|Renewal\s*Date')
+    due_date = find_labeled(r'Due\s*Date|Action\s*Due\s*Date|Action\s*Due|Compliance\s*Due\s*Date|Compliance\s*Due|Rectification\s*Due|Target\s*Date|Deadline|Resolve\s*By|Resolution\s*Due')
 
-    all_dates = re.findall(r'(\b\d{4}[-/.](?:0[1-9]|1[0-2]|[1-9])[-/.](?:0[1-9]|[12]\d|3[01]|[1-9])\b)|(\b(?:0[1-9]|[12]\d|3[01]|[1-9])[-/.](?:0[1-9]|1[0-2]|[1-9])[-/.]\d{4}\b)', text)
+    # If no specific labels found, extract all date tokens across the text
+    all_raw_matches = re.finditer(raw_date_pattern, text)
     extracted = []
-    for d in all_dates:
-        val = d[0] or d[1]
-        norm = normalize_date_str(val)
-        if norm and norm not in extracted:
-            extracted.append(norm)
+    for match in all_raw_matches:
+        iso = parse_date_to_iso(match.group(0))
+        if iso and iso not in extracted:
+            extracted.append(iso)
 
-    inspection_date = insp_date or (extracted[0] if len(extracted) > 0 else default_insp)
-    expiry_date = exp_date or (extracted[1] if len(extracted) > 1 else default_exp)
-    due_date = due_date or (extracted[2] if len(extracted) > 2 else default_due)
+    # Resolve date assignments with hierarchy
+    final_insp = insp_date or (extracted[0] if len(extracted) > 0 else default_insp)
+    final_issue = issue_date or insp_date or (extracted[0] if len(extracted) > 0 else default_issue)
+    
+    # Expiry date resolution
+    if exp_date:
+        final_exp = exp_date
+    elif len(extracted) > 1 and extracted[1] != final_insp:
+        final_exp = extracted[1]
+    else:
+        try:
+            dt = datetime.date.fromisoformat(final_issue)
+            final_exp = (dt + datetime.timedelta(days=365)).isoformat()
+        except Exception:
+            final_exp = default_exp
 
-    try:
-        dt_insp = datetime.date.fromisoformat(inspection_date)
-        if not exp_date and len(extracted) <= 1:
-            expiry_date = (dt_insp + datetime.timedelta(days=365)).isoformat()
-        if not due_date and len(extracted) <= 2:
-            due_date = (dt_insp + datetime.timedelta(days=30)).isoformat()
-    except Exception:
-        pass
+    # Due date resolution
+    if due_date:
+        final_due = due_date
+    elif len(extracted) > 2 and extracted[2] not in [final_insp, final_exp]:
+        final_due = extracted[2]
+    else:
+        try:
+            dt = datetime.date.fromisoformat(final_insp)
+            final_due = (dt + datetime.timedelta(days=30)).isoformat()
+        except Exception:
+            final_due = default_due
 
-    return inspection_date, expiry_date, due_date
+    return final_insp, final_issue, final_exp, final_due
 
 
 def extract_inspector(text):
