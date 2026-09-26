@@ -100,12 +100,33 @@
       <div class="modal-body">
         <div class="form-row">
           <div class="form-group">
-            <label for="c-name">Company Name</label>
+            <label for="c-name">Company Name *</label>
             <input type="text" id="c-name" required placeholder="e.g. BGR Mining &amp; Infra Ltd" />
           </div>
           <div class="form-group">
+            <label for="c-mine-id">Assigned Mine Site *</label>
+            <select id="c-mine-id" required>
+              <option value="">Loading mines...</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
             <label for="c-person">Primary Contact Person</label>
             <input type="text" id="c-person" required placeholder="e.g. Ramesh Verma" />
+          </div>
+          <div class="form-group">
+            <label for="c-type">Contract Service Scope</label>
+            <select id="c-type">
+              <option value="OVERBURDEN_REMOVAL">Overburden Removal &amp; Earthmoving</option>
+              <option value="COAL_TRANSPORTATION">Coal Transportation &amp; Logistics</option>
+              <option value="HEAVY_EQUIPMENT_MAINTENANCE">Heavy Equipment Maintenance</option>
+              <option value="DRILLING_AND_BLASTING">Drilling &amp; Blasting Operations</option>
+              <option value="SECURITY_AND_SURVEILLANCE">Security &amp; Perimeter Surveillance</option>
+              <option value="MANPOWER_SUPPLY">Skilled Manpower Supply</option>
+              <option value="ENVIRONMENTAL_SERVICES">Environmental &amp; Dust Management</option>
+            </select>
           </div>
         </div>
 
@@ -122,11 +143,11 @@
 
         <div class="form-row">
           <div class="form-group">
-            <label for="c-start">Contract Start Date</label>
+            <label for="c-start">Contract Start Date *</label>
             <input type="date" id="c-start" required />
           </div>
           <div class="form-group">
-            <label for="c-end">Contract End Date</label>
+            <label for="c-end">Contract End Date *</label>
             <input type="date" id="c-end" required />
           </div>
         </div>

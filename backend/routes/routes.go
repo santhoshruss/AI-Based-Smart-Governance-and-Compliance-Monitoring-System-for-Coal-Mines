@@ -98,10 +98,10 @@ func RegisterRoutes(router *gin.Engine, cfg *config.Config) {
 			contractors := protected.Group("/contractors")
 			{
 				contractors.GET("", contractorController.ListContractors)
-				contractors.POST("", middleware.RequireRoles(models.RoleSuperAdmin, models.RoleMineManager), contractorController.CreateContractor)
-				contractors.PUT("/:id", middleware.RequireRoles(models.RoleSuperAdmin, models.RoleMineManager), contractorController.UpdateContractor)
-				contractors.PUT("/:id/blacklist", middleware.RequireRoles(models.RoleSuperAdmin, models.RoleMineManager, models.RoleSafetyOfficer), contractorController.BlacklistContractor)
-				contractors.POST("/check-expiries", middleware.RequireRoles(models.RoleSuperAdmin, models.RoleMineManager, models.RoleSafetyOfficer), contractorController.CheckContractExpiries)
+				contractors.POST("", middleware.RequireRoles(models.RoleSuperAdmin, models.RoleMineManager, models.RoleSafetyOfficer, models.RoleCorporateManager), contractorController.CreateContractor)
+				contractors.PUT("/:id", middleware.RequireRoles(models.RoleSuperAdmin, models.RoleMineManager, models.RoleSafetyOfficer, models.RoleCorporateManager), contractorController.UpdateContractor)
+				contractors.PUT("/:id/blacklist", middleware.RequireRoles(models.RoleSuperAdmin, models.RoleMineManager, models.RoleSafetyOfficer, models.RoleCorporateManager), contractorController.BlacklistContractor)
+				contractors.POST("/check-expiries", middleware.RequireRoles(models.RoleSuperAdmin, models.RoleMineManager, models.RoleSafetyOfficer, models.RoleCorporateManager), contractorController.CheckContractExpiries)
 			}
 
 			// ---------------- ENVIRONMENTAL ----------------

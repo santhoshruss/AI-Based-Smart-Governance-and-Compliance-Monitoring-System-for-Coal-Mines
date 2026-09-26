@@ -61,7 +61,7 @@ func (cc *ContractorController) ListContractors(c *gin.Context) {
 	contractors := []models.Contractor{}
 	for rows.Next() {
 		var ct models.Contractor
-		var cStart, cEnd []uint8
+		var cStart, cEnd interface{}
 		var daysLeft sql.NullInt64
 
 		err := rows.Scan(
@@ -75,12 +75,8 @@ func (cc *ContractorController) ListContractors(c *gin.Context) {
 			return
 		}
 
-		if cStart != nil {
-			ct.ContractStart = string(cStart)
-		}
-		if cEnd != nil {
-			ct.ContractEnd = string(cEnd)
-		}
+		ct.ContractStart = utils.FormatDateFromDB(cStart)
+		ct.ContractEnd = utils.FormatDateFromDB(cEnd)
 		if daysLeft.Valid {
 			ct.DaysUntilExpiry = int(daysLeft.Int64)
 		}
@@ -92,7 +88,7 @@ func (cc *ContractorController) ListContractors(c *gin.Context) {
 }
 
 type contractorRequest struct {
-	MineID        int    `json:"mine_id" binding:"required"`
+	MineID        int    `json:"mine_id"`
 	CompanyName   string `json:"company_name" binding:"required"`
 	ContactPerson string `json:"contact_person"`
 	Phone         string `json:"phone"`
@@ -114,16 +110,35 @@ func (cc *ContractorController) CreateContractor(c *gin.Context) {
 	if req.Status == "" {
 		req.Status = "ACTIVE"
 	}
+	if req.ContractType == "" {
+		req.ContractType = "OVERBURDEN_REMOVAL"
+	}
 
 	userIDVal, _ := c.Get(middleware.CtxUserID)
-	userID := userIDVal.(int)
+	userID, _ := userIDVal.(int)
+
+	if req.MineID <= 0 {
+		var uMineID sql.NullInt64
+		_ = database.DB.QueryRow(`SELECT mine_id FROM users WHERE id = ?`, userID).Scan(&uMineID)
+		if uMineID.Valid && uMineID.Int64 > 0 {
+			req.MineID = int(uMineID.Int64)
+		} else {
+			_ = database.DB.QueryRow(`SELECT id FROM mines WHERE status = 'ACTIVE' ORDER BY id ASC LIMIT 1`).Scan(&req.MineID)
+			if req.MineID <= 0 {
+				req.MineID = 1
+			}
+		}
+	}
+
+	cStartVal := utils.ParseNullableDate(req.ContractStart)
+	cEndVal := utils.ParseNullableDate(req.ContractEnd)
 
 	var newID int64
 	err := database.DB.QueryRow(`
 		INSERT INTO contractors (mine_id, company_name, contact_person, phone, email, contract_type, contract_start, contract_end, status)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 		RETURNING id`,
-		req.MineID, req.CompanyName, req.ContactPerson, req.Phone, req.Email, req.ContractType, req.ContractStart, req.ContractEnd, req.Status).Scan(&newID)
+		req.MineID, req.CompanyName, req.ContactPerson, req.Phone, req.Email, req.ContractType, cStartVal, cEndVal, req.Status).Scan(&newID)
 
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "Failed to create contractor", err.Error())
@@ -149,8 +164,28 @@ func (cc *ContractorController) UpdateContractor(c *gin.Context) {
 		return
 	}
 
+	if req.ContractType == "" {
+		req.ContractType = "OVERBURDEN_REMOVAL"
+	}
+	if req.Status == "" {
+		req.Status = "ACTIVE"
+	}
+
 	userIDVal, _ := c.Get(middleware.CtxUserID)
-	userID := userIDVal.(int)
+	userID, _ := userIDVal.(int)
+
+	if req.MineID <= 0 {
+		var uMineID sql.NullInt64
+		_ = database.DB.QueryRow(`SELECT mine_id FROM users WHERE id = ?`, userID).Scan(&uMineID)
+		if uMineID.Valid && uMineID.Int64 > 0 {
+			req.MineID = int(uMineID.Int64)
+		} else {
+			req.MineID = 1
+		}
+	}
+
+	cStartVal := utils.ParseNullableDate(req.ContractStart)
+	cEndVal := utils.ParseNullableDate(req.ContractEnd)
 
 	_, err = database.DB.Exec(`
 		UPDATE contractors 
@@ -158,7 +193,7 @@ func (cc *ContractorController) UpdateContractor(c *gin.Context) {
 		    contract_type = ?, contract_start = ?, contract_end = ?, status = ?
 		WHERE id = ?`,
 		req.MineID, req.CompanyName, req.ContactPerson, req.Phone, req.Email,
-		req.ContractType, req.ContractStart, req.ContractEnd, req.Status, id)
+		req.ContractType, cStartVal, cEndVal, req.Status, id)
 
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "Failed to update contractor", err.Error())
@@ -188,7 +223,7 @@ func (cc *ContractorController) BlacklistContractor(c *gin.Context) {
 	}
 
 	userIDVal, _ := c.Get(middleware.CtxUserID)
-	userID := userIDVal.(int)
+	userID, _ := userIDVal.(int)
 
 	var companyName string
 	var mineID int
@@ -258,9 +293,9 @@ func (cc *ContractorController) CheckContractExpiries(c *gin.Context) {
 	alerts := []expiryAlert{}
 	for rows.Next() {
 		var a expiryAlert
-		var cEnd []uint8
+		var cEnd interface{}
 		if err := rows.Scan(&a.ContractorID, &a.CompanyName, &a.ContractorID, &a.MineName, &cEnd, &a.DaysLeft); err == nil {
-			a.ContractEnd = string(cEnd)
+			a.ContractEnd = utils.FormatDateFromDB(cEnd)
 			alerts = append(alerts, a)
 
 			// Generate notifications

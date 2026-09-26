@@ -2,15 +2,17 @@
  * contractors.js — Contractor Lifecycle & Compliance client logic.
  */
 let allContractors = [];
+let allMines = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
   AUTH.guardPage();
   AUTH.renderShell('contractors.html');
 
   const user = AUTH.getUser();
-  const canManage = ['SUPER_ADMIN', 'MINE_MANAGER'].includes(user.role_key);
+  const canManage = ['SUPER_ADMIN', 'MINE_MANAGER', 'SAFETY_OFFICER', 'CORPORATE_MANAGER'].includes(user.role_key);
   if (canManage) {
-    document.getElementById('btn-add-contractor').classList.remove('hidden');
+    const btn = document.getElementById('btn-add-contractor');
+    if (btn) btn.classList.remove('hidden');
   }
 
   document.getElementById('search-contractor').addEventListener('input', applyFilters);
@@ -26,8 +28,28 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('blacklist-modal-cancel').addEventListener('click', closeBlacklistModal);
   document.getElementById('blacklist-form').addEventListener('submit', handleBlacklistSubmit);
 
+  await loadMines();
   await loadContractors();
 });
+
+async function loadMines() {
+  try {
+    const res = await API.get('/mines');
+    allMines = Array.isArray(res) ? res : (res?.data || []);
+    const select = document.getElementById('c-mine-id');
+    if (select && allMines.length > 0) {
+      select.innerHTML = allMines.map(m => `
+        <option value="${m.id}">${m.mine_name} (${m.mine_code || 'Mine #' + m.id})</option>
+      `).join('');
+    }
+  } catch (err) {
+    console.warn('Failed to load mines for contractor modal:', err);
+    const select = document.getElementById('c-mine-id');
+    if (select) {
+      select.innerHTML = `<option value="1">Gevra Opencast Mine (SECL-GEV-01)</option>`;
+    }
+  }
+}
 
 async function loadContractors() {
   const tbody = document.getElementById('contractors-table-body');
@@ -91,7 +113,7 @@ function applyFilters() {
 function renderContractorsTable(items) {
   const tbody = document.getElementById('contractors-table-body');
   const user = AUTH.getUser();
-  const canManage = ['SUPER_ADMIN', 'MINE_MANAGER', 'SAFETY_OFFICER'].includes(user.role_key);
+  const canManage = ['SUPER_ADMIN', 'MINE_MANAGER', 'SAFETY_OFFICER', 'CORPORATE_MANAGER'].includes(user.role_key);
 
   if (!items || items.length === 0) {
     tbody.innerHTML = `<tr><td colspan="9" class="state-panel">No contractors found.</td></tr>`;
@@ -118,7 +140,10 @@ function renderContractorsTable(items) {
     return `
       <tr>
         <td class="mono font-semibold">#${c.id}</td>
-        <td><strong>${c.company_name}</strong></td>
+        <td>
+          <strong>${c.company_name}</strong>
+          <div style="font-size:11px; color:var(--text-secondary);">${c.mine_name || 'Mine #' + c.mine_id} &bull; ${(c.contract_type || 'General').replace(/_/g, ' ')}</div>
+        </td>
         <td>${c.contact_person || '-'}</td>
         <td>
           <div>${c.email || '-'}</div>
@@ -126,7 +151,7 @@ function renderContractorsTable(items) {
         </td>
         <td class="mono" style="font-size:12px;">${period}</td>
         <td>
-          <a href="documents.html" class="mono hint" style="text-decoration:underline;">View Docs</a>
+          <a href="documents.html" class="mono hint" style="text-decoration:underline;">View Docs (${c.document_count || 0})</a>
         </td>
         <td><span class="badge ${badgeClass}">${c.status}</span></td>
         <td><div style="max-width:220px; font-size:12px; color:var(--color-critical);">${c.blacklist_reason || '-'}</div></td>
@@ -145,15 +170,27 @@ window.openContractorModal = function(id) {
     if (!c) return;
     document.getElementById('contractor-modal-title').textContent = 'Edit Contractor Details';
     document.getElementById('c-id').value = c.id;
-    document.getElementById('c-name').value = c.company_name;
-    document.getElementById('c-person').value = c.contact_person;
-    document.getElementById('c-email').value = c.email;
-    document.getElementById('c-phone').value = c.phone;
+    document.getElementById('c-name').value = c.company_name || '';
+    if (document.getElementById('c-mine-id')) {
+      document.getElementById('c-mine-id').value = c.mine_id || (allMines[0]?.id || '1');
+    }
+    document.getElementById('c-person').value = c.contact_person || '';
+    if (document.getElementById('c-type')) {
+      document.getElementById('c-type').value = c.contract_type || 'OVERBURDEN_REMOVAL';
+    }
+    document.getElementById('c-email').value = c.email || '';
+    document.getElementById('c-phone').value = c.phone || '';
     document.getElementById('c-start').value = c.contract_start ? c.contract_start.split('T')[0] : '';
     document.getElementById('c-end').value = c.contract_end ? c.contract_end.split('T')[0] : '';
   } else {
     document.getElementById('contractor-modal-title').textContent = 'Register Contractor Agency';
     document.getElementById('c-id').value = '';
+    if (document.getElementById('c-mine-id') && allMines.length > 0) {
+      document.getElementById('c-mine-id').value = allMines[0].id;
+    }
+    if (document.getElementById('c-type')) {
+      document.getElementById('c-type').value = 'OVERBURDEN_REMOVAL';
+    }
   }
 
   document.getElementById('contractor-modal').classList.remove('hidden');
@@ -166,11 +203,18 @@ function closeContractorModal() {
 async function handleContractorSubmit(e) {
   e.preventDefault();
   const id = document.getElementById('c-id').value;
+  const mineSelect = document.getElementById('c-mine-id');
+  const mineId = mineSelect ? parseInt(mineSelect.value, 10) : 1;
+  const typeSelect = document.getElementById('c-type');
+  const contractType = typeSelect ? typeSelect.value : 'OVERBURDEN_REMOVAL';
+
   const payload = {
+    mine_id: isNaN(mineId) || mineId <= 0 ? 1 : mineId,
     company_name: document.getElementById('c-name').value.trim(),
     contact_person: document.getElementById('c-person').value.trim(),
     email: document.getElementById('c-email').value.trim(),
     phone: document.getElementById('c-phone').value.trim(),
+    contract_type: contractType,
     contract_start: document.getElementById('c-start').value,
     contract_end: document.getElementById('c-end').value
   };
@@ -186,7 +230,11 @@ async function handleContractorSubmit(e) {
     closeContractorModal();
     await loadContractors();
   } catch (err) {
-    showError(err);
+    if (typeof showToast === 'function') {
+      showToast(err.message || 'Failed to save contractor', 'danger');
+    } else {
+      alert(err.message || 'Failed to save contractor');
+    }
   }
 }
 
@@ -211,7 +259,11 @@ async function handleBlacklistSubmit(e) {
     closeBlacklistModal();
     await loadContractors();
   } catch (err) {
-    showError(err);
+    if (typeof showToast === 'function') {
+      showToast(err.message || 'Failed to blacklist contractor', 'danger');
+    } else {
+      alert(err.message || 'Failed to blacklist contractor');
+    }
   }
 }
 
@@ -225,9 +277,14 @@ async function handleCheckExpiries() {
     showToast(res.message || 'Expiries checked successfully', 'info');
     await loadContractors();
   } catch (err) {
-    showError(err);
+    if (typeof showToast === 'function') {
+      showToast(err.message || 'Failed to scan expiries', 'danger');
+    } else {
+      alert(err.message || 'Failed to scan expiries');
+    }
   } finally {
     const alertSvg = window.ICONS ? ICONS.get('alert') : '';
     btn.innerHTML = `${alertSvg} Scan Expiries &amp; Alert`;
+    btn.disabled = false;
   }
 }
