@@ -38,7 +38,7 @@ services:
     runtime: python
     rootDir: ai-service
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 2 --worker-class gthread --max-requests 50 --max-requests-jitter 10 --timeout 120
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9

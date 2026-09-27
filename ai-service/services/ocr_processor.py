@@ -13,15 +13,19 @@ try:
 except ImportError:
     pass
 
-# RapidOCR Neural Engine
-HAS_RAPID_OCR = False
-rapid_ocr_engine = None
-try:
-    from rapidocr_onnxruntime import RapidOCR
-    rapid_ocr_engine = RapidOCR()
-    HAS_RAPID_OCR = True
-except Exception as e:
-    HAS_RAPID_OCR = False
+# RapidOCR Neural Engine (Lazy initialized to stay within 512MB RAM on Render)
+_rapid_ocr_engine = None
+
+def get_rapid_ocr():
+    global _rapid_ocr_engine
+    if _rapid_ocr_engine is None:
+        try:
+            from rapidocr_onnxruntime import RapidOCR
+            _rapid_ocr_engine = RapidOCR()
+        except Exception as e:
+            print(f"[OCR] RapidOCR load notice: {e}")
+            _rapid_ocr_engine = False
+    return _rapid_ocr_engine if _rapid_ocr_engine is not False else None
 
 # PyMuPDF (fitz)
 HAS_FITZ = False
@@ -180,16 +184,17 @@ def extract_text_from_pdf(pdf_path):
     extracted_text = []
     try:
         doc = fitz.open(pdf_path)
+        ocr_engine = get_rapid_ocr()
         for page_idx in range(len(doc)):
             page = doc[page_idx]
             text = page.get_text("text").strip()
             if len(text) > 30:
                 extracted_text.append(text)
-            elif HAS_RAPID_OCR and rapid_ocr_engine:
+            elif ocr_engine:
                 try:
-                    pix = page.get_pixmap(dpi=150)
+                    pix = page.get_pixmap(dpi=130)
                     img_bytes = pix.tobytes("png")
-                    res, _ = rapid_ocr_engine(img_bytes)
+                    res, _ = ocr_engine(img_bytes)
                     if res:
                         page_text = "\n".join([line[1] for line in res if line and len(line) > 1])
                         if page_text:
@@ -204,17 +209,40 @@ def extract_text_from_pdf(pdf_path):
 
 
 def run_local_image_ocr(image_path):
-    """Extracts real-time text from images using RapidOCR (Neural ONNX engine) or Tesseract."""
+    """Extracts real-time text from images using RapidOCR (Neural ONNX engine) or Tesseract, keeping RAM bounded."""
     if not os.path.exists(image_path):
         return ""
+
+    # Downsample if image is overly large (> 1500px) to prevent RAM explosion on Render
+    target_path = image_path
+    temp_downsampled = None
+    try:
+        if HAS_TESSERACT or get_rapid_ocr():
+            with Image.open(image_path) as img:
+                w, h = img.size
+                if max(w, h) > 1500:
+                    scale = 1500.0 / float(max(w, h))
+                    resized = img.resize((int(w * scale), int(h * scale)), Image.Resampling.LANCZOS)
+                    if resized.mode in ('RGBA', 'LA', 'P'):
+                        resized = resized.convert('RGB')
+                    tf = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+                    resized.save(tf.name, format="PNG")
+                    temp_downsampled = tf.name
+                    target_path = temp_downsampled
+    except Exception as e:
+        pass
         
     # Priority 1: RapidOCR Neural Engine
-    if HAS_RAPID_OCR and rapid_ocr_engine:
+    ocr_engine = get_rapid_ocr()
+    if ocr_engine:
         try:
-            res, _ = rapid_ocr_engine(image_path)
+            res, _ = ocr_engine(target_path)
             if res:
                 lines = [line[1] for line in res if line and len(line) > 1 and line[1].strip()]
                 full_text = "\n".join(lines).strip()
+                if temp_downsampled and os.path.exists(temp_downsampled):
+                    try: os.remove(temp_downsampled)
+                    except Exception: pass
                 if full_text:
                     return full_text
         except Exception as e:
@@ -223,11 +251,18 @@ def run_local_image_ocr(image_path):
     # Priority 2: Tesseract OCR fallback
     if HAS_TESSERACT:
         try:
-            text = pytesseract.image_to_string(Image.open(image_path)).strip()
+            text = pytesseract.image_to_string(Image.open(target_path)).strip()
+            if temp_downsampled and os.path.exists(temp_downsampled):
+                try: os.remove(temp_downsampled)
+                except Exception: pass
             if text:
                 return text
         except Exception:
             pass
+
+    if temp_downsampled and os.path.exists(temp_downsampled):
+        try: os.remove(temp_downsampled)
+        except Exception: pass
 
     return ""
 
@@ -525,12 +560,18 @@ MONTH_MAP = {
 }
 
 def parse_date_to_iso(val):
-    """Converts various date string formats into standard YYYY-MM-DD ISO format."""
+    """Converts various date string formats into standard YYYY-MM-DD ISO format with OCR correction."""
     if not val:
         return ""
     val = val.strip()
+    # Normalize spaces around delimiters
+    val = re.sub(r'(\d{1,4})\s*([/\-\.])\s*(\d{1,2})\s*([/\-\.])\s*(\d{2,4})', r'\1\2\3\4\5', val)
+    # Fix 'O'/'o' mistranscriptions as zero
+    val = re.sub(r'(?<=[0-9/\-\.])([Oo])(?=[0-9/\-\.])', '0', val)
     val = re.sub(r'(?<=\d)(st|nd|rd|th)\b', '', val, flags=re.IGNORECASE)
+    val = re.sub(r'\b(of|dated|on)\b', ' ', val, flags=re.IGNORECASE)
     val = re.sub(r'[,]', ' ', val).strip()
+    val = re.sub(r'\s+', ' ', val)
 
     # 1. ISO YYYY-MM-DD, YYYY/MM/DD, YYYY.MM.DD
     m1 = re.match(r'^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$', val)
@@ -539,7 +580,7 @@ def parse_date_to_iso(val):
         if 1 <= m <= 12 and 1 <= d <= 31:
             return f"{y:04d}-{m:02d}-{d:02d}"
 
-    # 2. DD-MM-YYYY, DD/MM/YYYY, DD.MM.YYYY
+    # 2. DD-MM-YYYY, DD/MM/YYYY, DD.MM.YYYY (Standard Indian / DGMS format)
     m2 = re.match(r'^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$', val)
     if m2:
         d, m, y = int(m2.group(1)), int(m2.group(2)), int(m2.group(3))
@@ -552,7 +593,7 @@ def parse_date_to_iso(val):
     m3 = re.match(r'^(\d{1,2})[-/\s]+([A-Za-z]+)[-/\s]+(\d{4})$', val)
     if m3:
         d_val = int(m3.group(1))
-        mon_str = m3.group(2).lower()
+        mon_str = m3.group(2).lower()[:3]
         y_val = int(m3.group(3))
         if mon_str in MONTH_MAP and 1 <= d_val <= 31:
             return f"{y_val:04d}-{MONTH_MAP[mon_str]:02d}-{d_val:02d}"
@@ -560,7 +601,7 @@ def parse_date_to_iso(val):
     # 4. Month DD YYYY (e.g. October 15 2024, Oct 15 2024)
     m4 = re.match(r'^([A-Za-z]+)[-/\s]+(\d{1,2})[-/\s]+(\d{4})$', val)
     if m4:
-        mon_str = m4.group(1).lower()
+        mon_str = m4.group(1).lower()[:3]
         d_val = int(m4.group(2))
         y_val = int(m4.group(3))
         if mon_str in MONTH_MAP and 1 <= d_val <= 31:
@@ -580,29 +621,49 @@ def extract_dates_extended(text):
     if not text:
         return default_insp, default_issue, default_exp, default_due
 
+    # Clean text to normalize OCR-spaced dates
+    clean_text = re.sub(r'(\d{1,4})\s*([/\-\.])\s*(\d{1,2})\s*([/\-\.])\s*(\d{2,4})', r'\1\2\3\4\5', text)
+    clean_text = re.sub(r'(?<=[0-9/\-\.])([Oo])(?=[0-9/\-\.])', '0', clean_text)
+
     raw_date_pattern = r'(?:' \
         r'\d{4}[-/.]\d{1,2}[-/.]\d{1,2}' \
         r'|\d{1,2}[-/.]\d{1,2}[-/.]\d{4}' \
-        r'|\d{1,2}(?:st|nd|rd|th)?[-/\s]+[A-Za-z]+[-/\s]+\d{4}' \
+        r'|\d{1,2}(?:st|nd|rd|th)?(?:\s+of)?[-/\s]+[A-Za-z]+[-/\s]+\d{4}' \
         r'|[A-Za-z]+[-/\s]+\d{1,2}(?:st|nd|rd|th)?[-/\s,]+\d{4}' \
         r')'
 
     def find_labeled(pattern_str):
-        p = rf'(?:{pattern_str})\s*[:#=\.-]?\s*({raw_date_pattern})'
-        m = re.search(p, text, re.IGNORECASE)
+        # 1. Same-line search with optional punctuation or words like "dated", "on"
+        p = rf'(?:{pattern_str})[^\d\n\r]{{0,35}}?({raw_date_pattern})'
+        m = re.search(p, clean_text, re.IGNORECASE)
         if m:
             iso = parse_date_to_iso(m.group(1))
             if iso:
                 return iso
+        # 2. Line-by-line search (checking current and subsequent line)
+        lines = clean_text.splitlines()
+        for idx, line in enumerate(lines):
+            if re.search(pattern_str, line, re.IGNORECASE):
+                m_curr = re.search(raw_date_pattern, line, re.IGNORECASE)
+                if m_curr:
+                    iso = parse_date_to_iso(m_curr.group(0))
+                    if iso:
+                        return iso
+                if idx + 1 < len(lines):
+                    m_next = re.search(raw_date_pattern, lines[idx+1], re.IGNORECASE)
+                    if m_next:
+                        iso = parse_date_to_iso(m_next.group(0))
+                        if iso:
+                            return iso
         return ""
 
     insp_date = find_labeled(r'Inspection\s*Date|Date\s*of\s*Inspection|Inspected\s*On|Audit\s*Date|Date\s*of\s*Audit')
-    issue_date = find_labeled(r'Issue\s*Date|Date\s*of\s*Issue|Issued\s*On|Date\s*of\s*Grant|Grant\s*Date')
+    issue_date = find_labeled(r'Issue\s*Date|Date\s*of\s*Issue|Issued\s*On|Date\s*of\s*Grant|Grant\s*Date|Dated')
     exp_date = find_labeled(r'Expiry\s*Date|Date\s*of\s*Expiry|Valid\s*Till|Valid\s*Through|Valid\s*Upto|Valid\s*Until|Validity\s*Date|Validity|Expires\s*On|Renewal\s*Date')
     due_date = find_labeled(r'Due\s*Date|Action\s*Due\s*Date|Action\s*Due|Compliance\s*Due\s*Date|Compliance\s*Due|Rectification\s*Due|Target\s*Date|Deadline|Resolve\s*By|Resolution\s*Due')
 
     # If no specific labels found, extract all date tokens across the text
-    all_raw_matches = re.finditer(raw_date_pattern, text)
+    all_raw_matches = re.finditer(raw_date_pattern, clean_text)
     extracted = []
     for match in all_raw_matches:
         iso = parse_date_to_iso(match.group(0))

@@ -141,33 +141,61 @@ func (dc *DocumentsController) ListDocuments(c *gin.Context) {
 	list := []documentItem{}
 	for rows.Next() {
 		var d documentItem
+		var idVal int64
 		var mineID, contractorID sql.NullInt64
+		var uploadedBy sql.NullInt64
 		var reviewedBy, approvedBy, verifiedBy sql.NullInt64
+		var mineName, mineCode, contractorName, docType, filePath, certNum, ocrRaw, inspName, compStatus, vioDet, riskLvl, corrAct, regRef, wfStatus, upByName, revByName, appByName, verByName, statusVal sql.NullString
 		var reviewedAt, approvedAt, verifiedAt interface{}
 		var issueVal, expiryVal, inspectVal, dueVal interface{}
 		var ocrJSONVal interface{}
 		var createdVal interface{}
 
 		err := rows.Scan(
-			&d.ID, &mineID, &d.MineName, &d.MineCode,
-			&contractorID, &d.ContractorName,
-			&d.DocumentType, &d.FilePath,
-			&d.CertificateNumber, &issueVal, &expiryVal, &d.OCRRawText,
-			&d.InspectorName, &inspectVal, &d.ComplianceStatus,
-			&d.ViolationDetails, &d.RiskLevel, &d.CorrectiveAction,
-			&dueVal, &d.RegulatoryReference, &ocrJSONVal,
-			&d.WorkflowStatus,
-			&d.UploadedBy, &d.UploadedByName,
-			&reviewedBy, &d.ReviewedByName, &reviewedAt,
-			&approvedBy, &d.ApprovedByName, &approvedAt,
-			&verifiedBy, &d.VerifiedByName, &verifiedAt,
-			&d.Status, &createdVal,
+			&idVal, &mineID, &mineName, &mineCode,
+			&contractorID, &contractorName,
+			&docType, &filePath,
+			&certNum, &issueVal, &expiryVal, &ocrRaw,
+			&inspName, &inspectVal, &compStatus,
+			&vioDet, &riskLvl, &corrAct,
+			&dueVal, &regRef, &ocrJSONVal,
+			&wfStatus,
+			&uploadedBy, &upByName,
+			&reviewedBy, &revByName, &reviewedAt,
+			&approvedBy, &appByName, &approvedAt,
+			&verifiedBy, &verByName, &verifiedAt,
+			&statusVal, &createdVal,
 		)
 		if err != nil {
-			utils.Fail(c, http.StatusInternalServerError, "Failed to parse document record", err.Error())
-			return
+			continue
 		}
 
+		d.ID = int(idVal)
+		d.MineName = mineName.String
+		d.MineCode = mineCode.String
+		d.ContractorName = contractorName.String
+		d.DocumentType = docType.String
+		d.FilePath = filePath.String
+		d.CertificateNumber = certNum.String
+		d.OCRRawText = ocrRaw.String
+		d.InspectorName = inspName.String
+		d.ComplianceStatus = compStatus.String
+		d.ViolationDetails = vioDet.String
+		d.RiskLevel = riskLvl.String
+		d.CorrectiveAction = corrAct.String
+		d.RegulatoryReference = regRef.String
+		d.WorkflowStatus = wfStatus.String
+		d.UploadedByName = upByName.String
+		d.ReviewedByName = revByName.String
+		d.ApprovedByName = appByName.String
+		d.VerifiedByName = verByName.String
+		d.Status = statusVal.String
+
+		if uploadedBy.Valid {
+			d.UploadedBy = int(uploadedBy.Int64)
+		} else {
+			d.UploadedBy = 1
+		}
 		if mineID.Valid {
 			val := int(mineID.Int64)
 			d.MineID = &val
@@ -446,6 +474,11 @@ func (dc *DocumentsController) UploadDocument(c *gin.Context) {
 	inspectionDateVal := utils.ParseNullableDate(inspectionDate)
 	dueDateVal := utils.ParseNullableDate(dueDate)
 
+	var ocrDataJSONVal interface{} = nil
+	if len(fullOCRJSON) > 0 && strings.TrimSpace(string(fullOCRJSON)) != "" {
+		ocrDataJSONVal = string(fullOCRJSON)
+	}
+
 	var newID int64
 	err = database.DB.QueryRow(`
 		INSERT INTO documents (
@@ -461,7 +494,7 @@ func (dc *DocumentsController) UploadDocument(c *gin.Context) {
 		issueDateVal, expiryDateVal, rawText, userID, status,
 		mineCode, inspectorName, inspectionDateVal, complianceStatus,
 		violationDetails, riskLevel, correctiveAction, dueDateVal,
-		regulatoryRef, string(fullOCRJSON)).Scan(&newID)
+		regulatoryRef, ocrDataJSONVal).Scan(&newID)
 
 	if err != nil {
 		utils.Fail(c, http.StatusInternalServerError, "Failed to save document to database", err.Error())
